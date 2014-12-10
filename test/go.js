@@ -13,8 +13,13 @@ s.addSpace(filler);
 s.addFile('fixtures/inner/second.js');
 
 s.end().then(function(){
+  s = new SourceMap({outputFile: 'tmp/intermediate2.js'});
+  s.addFile('fixtures/other/fourth.js');
+  return s.end();
+}).then(function(){
   s = new SourceMap({outputFile: 'tmp/final.js'});
-  s.addFile('fixtures/other/third.js');
   s.addFile('tmp/intermediate.js');
+  s.addFile('fixtures/other/third.js');
+  s.addFile('tmp/intermediate2.js');
   return s.end();
 }).catch(function(err){throw err;});
