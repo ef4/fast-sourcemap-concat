@@ -15,14 +15,7 @@ function SourceMap(opts) {
   }
   this.baseDir = opts.baseDir;
   this.outputFile = opts.outputFile;
-  this.shouldBuildMap = matchesExtension(this.outputFile, opts.sourceMapsFor || ['js']);
   this._initializeStream();
-
-  // We can operate in passthrough mode and be a normal concatenator
-  // for things that don't want source maps.
-  if (!this.shouldBuildMap) {
-    return;
-  }
 
   this.content = {
     version: 3,
@@ -71,21 +64,19 @@ SourceMap.prototype.addFile = function(filename) {
   var url;
   var source = fs.readFileSync(this._resolveFile(filename), 'utf-8');
 
-  if (this.shouldBuildMap && srcURL.existsIn(source)) {
+  if (srcURL.existsIn(source)) {
     url = srcURL.getFrom(source);
     source = srcURL.removeFrom(source);
   }
 
   this.stream.write(source);
 
-  if (this.shouldBuildMap) {
-    if (url) {
-      this._assimilateExistingMap(filename, url);
-    } else {
-      this.content.sources.push('/' + filename);
-      this.content.sourcesContent.push(source);
-      this._generateNewMap(source);
-    }
+  if (url) {
+    this._assimilateExistingMap(filename, url);
+  } else {
+    this.content.sources.push('/' + filename);
+    this.content.sourcesContent.push(source);
+    this._generateNewMap(source);
   }
 };
 
@@ -203,11 +194,9 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 };
 
 SourceMap.prototype.end = function() {
-  if (this.shouldBuildMap) {
-    var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
-    this.stream.write('//# sourceMappingURL=' + path.basename(filename));
-    fs.writeFileSync(filename, JSON.stringify(this.content));
-  }
+  var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
+  this.stream.write('//# sourceMappingURL=' + path.basename(filename));
+  fs.writeFileSync(filename, JSON.stringify(this.content));
   return new RSVP.Promise(function(resolve, reject) {
     this.stream.on('finish', resolve);
     this.stream.on('error', reject);
@@ -270,14 +259,3 @@ function decode(mapping) {
 // Optimized shorthand for saying that the next line in the generated
 // output maps to the next line in the input source.
 var nextLineContinues = [0,0,1,0].map(vlq.encode).join('') + ';';
-
-function matchesExtension(outputFile, extensions) {
-  for (var i = 0; i < extensions.length; i++) {
-    var extension = extensions[i];
-    extension = '.' + extension.replace(/^\./,'');
-    if (outputFile.slice(-1 * extension.length) === extension) {
-      return true;
-    }
-  }
-  return false;
-}
