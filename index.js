@@ -2,6 +2,8 @@ var fs = require('fs');
 var srcURL = require('source-map-url');
 var path = require('path');
 var vlq = require('source-map/lib/source-map/base64-vlq');
+var RSVP = require('rsvp');
+var mkdirp = require('mkdirp');
 
 module.exports = SourceMap;
 function SourceMap(opts) {
@@ -15,14 +17,15 @@ function SourceMap(opts) {
     names: [],
     mappings: ''
   };
-  if (opts) {
-    if (opts.file) {
-      this.content.file = opts.file;
-    }
-    if (opts.sourceRoot) {
-      this.content.sourceRoot = opts.sourceRoot;
-    }
+  if (!opts || !opts.outputFile) {
+    throw new Error("Must specify outputFile");
   }
+  if (opts.sourceRoot) {
+    this.content.sourceRoot = opts.sourceRoot;
+  }
+  this.content.file = opts.file || path.basename(opts.outputFile);
+  this.baseDir = opts.baseDir;
+  this.outputFile = opts.outputFile;
 
   // These correspond to the five fields of each mapping entry. We
   // always track the previously-used values because each new value is
@@ -37,18 +40,37 @@ function SourceMap(opts) {
   // generated file. Notice that we don't track line though -- line is
   // implicit in  this.content.mappings.
   this.column = 0;
+
+  this._initializeStream();
 }
 
-SourceMap.prototype.addFile = function(filename, source) {
+SourceMap.prototype._resolveFile = function(filename) {
+  if (this.baseDir) {
+    filename = path.join(this.baseDir, filename);
+  }
+  return filename;
+};
+
+SourceMap.prototype._initializeStream = function() {
+  var filename = this._resolveFile(this.outputFile);
+  mkdirp(path.dirname(filename));
+  this.stream = fs.createWriteStream(filename);
+};
+
+
+SourceMap.prototype.addFile = function(filename) {
   var url;
+  var source = fs.readFileSync(this._resolveFile(filename), 'utf-8');
 
   if (srcURL.existsIn(source)) {
     url = srcURL.getFrom(source);
     source = srcURL.removeFrom(source);
   }
 
+  this.stream.write(source);
+
   if (url) {
-    this._assimilateExistingMap(url);
+    this._assimilateExistingMap(filename, url);
   } else {
     this.content.sources.push(filename);
     this.content.sourcesContent.push(source);
@@ -57,7 +79,7 @@ SourceMap.prototype.addFile = function(filename, source) {
 
 };
 
-// This is useful for things like separates that you're appending to
+// This is useful for things like separators that you're appending to
 // your JS file that don't need to have their own source mapping, but
 // will alter the line numbering for subsequent files.
 SourceMap.prototype.addSpace = function(source) {
@@ -78,10 +100,10 @@ SourceMap.prototype._generateNewMap = function(source) {
   var mappings = this.content.mappings;
   var lineCount = countLines(source);
 
-  mappings += this.relativeEncode('prevGeneratedColumn', this.column);
-  mappings += this.relativeEncode('prevSource', this.content.sources.length-1);
-  mappings += this.relativeEncode('prevOriginalLine', 0);
-  mappings += this.relativeEncode('prevOriginalColumn', 0);
+  mappings += this._relativeEncode('prevGeneratedColumn', this.column);
+  mappings += this._relativeEncode('prevSource', this.content.sources.length-1);
+  mappings += this._relativeEncode('prevOriginalLine', 0);
+  mappings += this._relativeEncode('prevOriginalColumn', 0);
 
   if (lineCount === 0) {
     // no newline in the source. Keep outputting one big line.
@@ -90,6 +112,7 @@ SourceMap.prototype._generateNewMap = function(source) {
   } else {
     // end the line
     this.column = 0;
+    this.prevGeneratedColumn = null;
     mappings += ';';
   }
 
@@ -103,15 +126,75 @@ SourceMap.prototype._generateNewMap = function(source) {
   this.content.mappings = mappings;
 };
 
-SourceMap.prototype._assimilateExistingMap = function(url) {
+SourceMap.prototype._assimilateExistingMap = function(filename, url) {
+  var srcMap = fs.readFileSync(path.join(path.dirname(this._resolveFile(filename)), url), 'utf8');
+  srcMap = JSON.parse(srcMap);
+  var content = this.content;
+  var sourcesOffset = content.sources.length;
+  var namesOffset = content.names.length;
 
+  content.sources = content.sources.concat(srcMap.sources);
+  content.sourcesContent = content.sourcesContent.concat(srcMap.sourcesContent);
+  content.names = content.names.concat(srcMap.names);
+
+  this._scanMappings(srcMap, sourcesOffset, namesOffset);
 };
 
-SourceMap.prototype.toString = function() {
-  return JSON.stringify(this.content);
+SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset) {
+  var pattern = /([^;,]+)([;,])?/g;
+  var match;
+  var mappings = this.content.mappings;
+  var firstTime = true;
+
+  while (match = pattern.exec(srcMap.mappings)) {
+    var value = decode(match[1]);
+    if (!firstTime) {
+      value = this._relativize(value);
+    } else {
+      firstTime = false;
+    }
+
+    mappings += this._relativeEncode('prevGeneratedColumn', this.column + value.generatedColumn);
+    this.column = 0;
+
+    if (value.hasOwnProperty('source')) {
+      mappings += this._relativeEncode('prevSource', value.source + sourcesOffset);
+      sourcesOffset = 0;
+    }
+    if (value.hasOwnProperty('originalLine')) {
+      mappings += this._relativeEncode('prevOriginalLine', value.originalLine);
+    }
+    if (value.hasOwnProperty('originalColumn')) {
+      mappings += this._relativeEncode('prevOriginalColumn', value.originalColumn);
+    }
+    if (value.hasOwnProperty('name')) {
+      mappings += this._relativeEncode('prevName', value.name + namesOffset);
+      namesOffset = 0;
+    }
+    if (match[2] === ';') {
+      mappings += ';';
+      this.prevGeneratedColumn = null;
+    }
+    if (match[1] === ',') {
+      mappings += ',';
+    }
+
+  }
+  this.content.mappings = mappings;
 };
 
-SourceMap.prototype.relativeEncode = function(key, value) {
+SourceMap.prototype.end = function() {
+  var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
+  this.stream.write('//# sourceMappingURL=' + path.basename(filename));
+  fs.writeFileSync(filename, JSON.stringify(this.content));
+  return new RSVP.Promise(function(resolve, reject) {
+    this.stream.on('finish', resolve);
+    this.stream.on('error', reject);
+    this.stream.end();
+  }.bind(this));
+};
+
+SourceMap.prototype._relativeEncode = function(key, value) {
   var prevValue = this[key];
   this[key] = value;
   if (typeof prevValue !== 'undefined') {
@@ -119,6 +202,26 @@ SourceMap.prototype.relativeEncode = function(key, value) {
   }
   return vlq.encode(value);
 };
+
+SourceMap.prototype._relativize = function(value) {
+  var output = {};
+  var fields = ['generatedColumn', 'source', 'originalLine', 'originalColumn', 'name'];
+  for (var i=0; i<fields.length;i++) {
+    var field = fields[i];
+    var prevField = 'prev' + capitalize(field);
+    if (value.hasOwnProperty(field)) {
+      output[field] = value[field];
+      if (typeof this[prevField] !== 'undefined') {
+        output[field] += this[prevField];
+      }
+    }
+  }
+  return output;
+};
+
+function capitalize(word) {
+  return word.slice(0,1).toUpperCase() + word.slice(1);
+}
 
 function countLines(src) {
   var newlinePattern = /(\r?\n)/g;
@@ -128,6 +231,20 @@ function countLines(src) {
   }
   return count;
 }
+
+function decode(mapping) {
+  var buf = {rest: mapping};
+  var output = {};
+  var fields = ['generatedColumn', 'source', 'originalLine', 'originalColumn', 'name'];
+  var fieldIndex = 0;
+  while (fieldIndex < fields.length && buf.rest.length > 0) {
+    vlq.decode(buf.rest, buf);
+    output[fields[fieldIndex]] = buf.value;
+    fieldIndex++;
+  }
+  return output;
+}
+
 
 // Optimized shorthand for saying that the next line in the generated
 // output maps to the next line in the input source.
