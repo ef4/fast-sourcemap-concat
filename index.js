@@ -72,7 +72,7 @@ SourceMap.prototype.addFile = function(filename) {
   if (url) {
     this._assimilateExistingMap(filename, url);
   } else {
-    this.content.sources.push(filename);
+    this.content.sources.push('/' + filename);
     this.content.sourcesContent.push(source);
     this._generateNewMap(source);
   }
