@@ -1,10 +1,12 @@
+Work-in-progress
+================
+
 Fast Source Map Concatenation
 -----------------------------
 
 This library lets you concatenate files (with or without their own
 pre-generated sourcemaps), and get a single output file along with a
 sourcemap.
-
 
 source-map dependency
 ---------------------
