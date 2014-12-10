@@ -10,6 +10,20 @@ function SourceMap(opts) {
   if (!this instanceof SourceMap) {
     return new SourceMap(opts);
   }
+  if (!opts || !opts.outputFile) {
+    throw new Error("Must specify outputFile");
+  }
+  this.baseDir = opts.baseDir;
+  this.outputFile = opts.outputFile;
+  this.shouldBuildMap = matchesExtension(this.outputFile, opts.sourceMapsFor || ['js']);
+  this._initializeStream();
+
+  // We can operate in passthrough mode and be a normal concatenator
+  // for things that don't want source maps.
+  if (!this.shouldBuildMap) {
+    return;
+  }
+
   this.content = {
     version: 3,
     sources: [],
@@ -17,15 +31,10 @@ function SourceMap(opts) {
     names: [],
     mappings: ''
   };
-  if (!opts || !opts.outputFile) {
-    throw new Error("Must specify outputFile");
-  }
   if (opts.sourceRoot) {
     this.content.sourceRoot = opts.sourceRoot;
   }
   this.content.file = opts.file || path.basename(opts.outputFile);
-  this.baseDir = opts.baseDir;
-  this.outputFile = opts.outputFile;
 
   // These correspond to the five fields of each mapping entry. We
   // always track the previously-used values because each new value is
@@ -41,11 +50,11 @@ function SourceMap(opts) {
   // implicit in  this.content.mappings.
   this.column = 0;
 
-  this._initializeStream();
+
 }
 
 SourceMap.prototype._resolveFile = function(filename) {
-  if (this.baseDir) {
+  if (this.baseDir && filename.slice(0,1) !== '/') {
     filename = path.join(this.baseDir, filename);
   }
   return filename;
@@ -62,27 +71,32 @@ SourceMap.prototype.addFile = function(filename) {
   var url;
   var source = fs.readFileSync(this._resolveFile(filename), 'utf-8');
 
-  if (srcURL.existsIn(source)) {
+  if (this.shouldBuildMap && srcURL.existsIn(source)) {
     url = srcURL.getFrom(source);
     source = srcURL.removeFrom(source);
   }
 
   this.stream.write(source);
 
-  if (url) {
-    this._assimilateExistingMap(filename, url);
-  } else {
-    this.content.sources.push('/' + filename);
-    this.content.sourcesContent.push(source);
-    this._generateNewMap(source);
+  if (this.shouldBuildMap) {
+    if (url) {
+      this._assimilateExistingMap(filename, url);
+    } else {
+      this.content.sources.push('/' + filename);
+      this.content.sourcesContent.push(source);
+      this._generateNewMap(source);
+    }
   }
-
 };
 
 // This is useful for things like separators that you're appending to
 // your JS file that don't need to have their own source mapping, but
 // will alter the line numbering for subsequent files.
 SourceMap.prototype.addSpace = function(source) {
+  this.stream.write(source);
+  if (!this.shouldBuildMap) {
+    return;
+  }
   var lineCount = countLines(source);
   if (lineCount === 0) {
     this.column += source.length;
@@ -147,6 +161,11 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
   var firstTime = true;
 
   while (match = pattern.exec(srcMap.mappings)) {
+    if (!firstTime && match[0] === nextLineContinues) {
+      mappings += nextLineContinues;
+      this.prevOriginalLine += 1;
+      continue;
+    }
     var value = decode(match[1]);
     if (!firstTime) {
       value = this._relativize(value);
@@ -184,9 +203,11 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 };
 
 SourceMap.prototype.end = function() {
-  var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
-  this.stream.write('//# sourceMappingURL=' + path.basename(filename));
-  fs.writeFileSync(filename, JSON.stringify(this.content));
+  if (this.shouldBuildMap) {
+    var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
+    this.stream.write('//# sourceMappingURL=' + path.basename(filename));
+    fs.writeFileSync(filename, JSON.stringify(this.content));
+  }
   return new RSVP.Promise(function(resolve, reject) {
     this.stream.on('finish', resolve);
     this.stream.on('error', reject);
@@ -249,3 +270,14 @@ function decode(mapping) {
 // Optimized shorthand for saying that the next line in the generated
 // output maps to the next line in the input source.
 var nextLineContinues = [0,0,1,0].map(vlq.encode).join('') + ';';
+
+function matchesExtension(outputFile, extensions) {
+  for (var i = 0; i < extensions.length; i++) {
+    var extension = extensions[i];
+    extension = '.' + extension.replace(/^\./,'');
+    if (outputFile.slice(-1 * extension.length) === extension) {
+      return true;
+    }
+  }
+  return false;
+}
