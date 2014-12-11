@@ -147,18 +147,18 @@ SourceMap.prototype._assimilateExistingMap = function(filename, url) {
 };
 
 SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset) {
-  var pattern = /([^;,]+)([;,])?/g;
+  var pattern = /((?:AACA;)+)|(?:([^;,]+)([;,])?)/g;
   var match;
   var mappings = this.content.mappings;
   var firstTime = true;
 
   while (match = pattern.exec(srcMap.mappings)) {
-    if (!firstTime && match[0] === util.nextLineContinues) {
-      mappings += util.nextLineContinues;
-      this.prevOriginalLine += 1;
+    if (match[1]) {
+      mappings += match[1];
+      this.prevOriginalLine += match[1].length / 5;
       continue;
     }
-    var value = decode(match[1]);
+    var value = decode(match[2]);
     if (!firstTime) {
       value = this._relativize(value);
     } else {
@@ -182,11 +182,11 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
       mappings += this._relativeEncode('prevName', value.name + namesOffset);
       namesOffset = 0;
     }
-    if (match[2] === ';') {
+    if (match[3] === ';') {
       mappings += ';';
       this.prevGeneratedColumn = null;
     }
-    if (match[1] === ',') {
+    if (match[3] === ',') {
       mappings += ',';
     }
 
