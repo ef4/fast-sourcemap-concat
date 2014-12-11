@@ -149,6 +149,7 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
     if (!firstTime && match[0] === 'AACA;') {
       mappings += 'AACA;';
       this.encoder.adjustLine(1);
+      decoder.adjustLine(1);
       continue;
     }
     var value = decoder.decode(match[1]);
@@ -159,11 +160,9 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 
     if (value.hasOwnProperty('source')) {
       value.source += sourcesOffset;
-      sourcesOffset = 0;
     }
     if (value.hasOwnProperty('name')) {
       value.name += namesOffset;
-      namesOffset = 0;
     }
     mappings += this.encoder.encode(value);
     if (match[2] === ';') {

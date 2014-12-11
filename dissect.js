@@ -1,6 +1,6 @@
 var fs = require('fs');
-var src = fs.readFileSync('test/tmp/final.js', 'utf-8');
-var map = JSON.parse(fs.readFileSync('test/tmp/final.map', 'utf-8'));
+var src = fs.readFileSync('../simple-sourcemap-concat/test/dist/final.js', 'utf-8');
+var map = JSON.parse(fs.readFileSync('../simple-sourcemap-concat/test/dist/final.map', 'utf-8'));
 var Coder = require('./coder');
 var padding = 80;
 
@@ -24,7 +24,7 @@ function padUpTo(str, padding) {
 for (var i=0; i<lines.length;i++) {
   var value = decoder.decode(mappings[i]);
 
-  var fileDesc = '';
+  var fileDesc = mappings[i] + ' ';
   var origLine = '';
 
   if (value.hasOwnProperty('source')) {
@@ -32,7 +32,13 @@ for (var i=0; i<lines.length;i++) {
   }
   if (value.hasOwnProperty('originalLine')) {
     fileDesc += ':' + value.originalLine;
-    origLine = splitContents[value.source][value.originalLine];
+    var whichSource = splitContents[value.source];
+    if (whichSource) {
+      origLine = whichSource[value.originalLine];
+    }
+    if (typeof origLine === 'undefined'){
+      origLine = '<BAD LINE REFERENCE: ' + value.source + ',' + value.originalLine;
+    }
   }
 
   console.log([

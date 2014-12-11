@@ -10,8 +10,8 @@ Coder.prototype.decode = function(mapping) {
 
   for (var i=0; i<fields.length;i++) {
     var field = fields[i];
-    var prevField = 'prev_' + field;
     if (value.hasOwnProperty(field)) {
+      var prevField = 'prev_' + field;
       output[field] = value[field];
       if (typeof this[prevField] !== 'undefined') {
         output[field] += this[prevField];
@@ -26,13 +26,14 @@ Coder.prototype.encode = function(value) {
   var output = '';
   for (var i=0; i<fields.length;i++) {
     var field = fields[i];
-    var prevField = 'prev_' + field;
     if (value.hasOwnProperty(field)){
+      var prevField = 'prev_' + field;
       var valueField = value[field];
       if (typeof this[prevField] !== 'undefined') {
-        valueField -= this[prevField];
+        output += vlq.encode(valueField-this[prevField]);
+      } else {
+        output += vlq.encode(valueField);
       }
-      output += vlq.encode(valueField);
       this[prevField] = valueField;
     }
   }
