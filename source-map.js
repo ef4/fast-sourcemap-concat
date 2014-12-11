@@ -3,7 +3,6 @@ var srcURL = require('source-map-url');
 var path = require('path');
 var RSVP = require('rsvp');
 var mkdirp = require('mkdirp');
-var util = require('./util');
 var Coder = require('./coder');
 
 module.exports = SourceMap;
@@ -79,7 +78,7 @@ SourceMap.prototype.addSpace = function(source) {
   if (!this.shouldBuildMap) {
     return;
   }
-  var lineCount = util.countLines(source);
+  var lineCount = countNewLines(source);
   if (lineCount === 0) {
     this.column += source.length;
   } else {
@@ -94,7 +93,7 @@ SourceMap.prototype.addSpace = function(source) {
 
 SourceMap.prototype._generateNewMap = function(source) {
   var mappings = this.content.mappings;
-  var lineCount = util.countLines(source);
+  var lineCount = countNewLines(source);
 
   mappings += this.encoder.encode({
     generatedColumn: this.column,
@@ -202,3 +201,13 @@ SourceMap.prototype.end = function() {
     this.stream.end();
   }.bind(this));
 };
+
+
+function countNewLines(src) {
+  var newlinePattern = /(\r?\n)/g;
+  var count = 0;
+  while (newlinePattern.exec(src)) {
+    count++;
+  }
+  return count;
+}
