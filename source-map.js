@@ -1,10 +1,10 @@
 var fs = require('fs');
 var srcURL = require('source-map-url');
 var path = require('path');
-var vlq = require('./vlq');
 var RSVP = require('rsvp');
 var mkdirp = require('mkdirp');
 var util = require('./util');
+var Coder = require('./coder');
 
 module.exports = SourceMap;
 function SourceMap(opts) {
@@ -29,22 +29,12 @@ function SourceMap(opts) {
     this.content.sourceRoot = opts.sourceRoot;
   }
   this.content.file = opts.file || path.basename(opts.outputFile);
-
-  // These correspond to the five fields of each mapping entry. We
-  // always track the previously-used values because each new value is
-  // relative to the previous.
-  this.prevGeneratedColumn = null;
-  this.prevSource = null;
-  this.prevOriginalLine = null;
-  this.prevOriginalColumn = null;
-  this.prevName = null;
+  this.encoder = new Coder();
 
   // Keep track of what column we're currently outputing in the
   // generated file. Notice that we don't track line though -- line is
   // implicit in  this.content.mappings.
   this.column = 0;
-
-
 }
 
 SourceMap.prototype._resolveFile = function(filename) {
@@ -106,10 +96,12 @@ SourceMap.prototype._generateNewMap = function(source) {
   var mappings = this.content.mappings;
   var lineCount = util.countLines(source);
 
-  mappings += this._relativeEncode('prevGeneratedColumn', this.column);
-  mappings += this._relativeEncode('prevSource', this.content.sources.length-1);
-  mappings += this._relativeEncode('prevOriginalLine', 0);
-  mappings += this._relativeEncode('prevOriginalColumn', 0);
+  mappings += this.encoder.encode({
+    generatedColumn: this.column,
+    source: this.content.sources.length-1,
+    originalLine: 0,
+    originalColumn: 0
+  });
 
   if (lineCount === 0) {
     // no newline in the source. Keep outputting one big line.
@@ -118,7 +110,7 @@ SourceMap.prototype._generateNewMap = function(source) {
   } else {
     // end the line
     this.column = 0;
-    this.prevGeneratedColumn = null;
+    this.encoder.resetColumn();
     mappings += ';';
   }
 
@@ -126,8 +118,8 @@ SourceMap.prototype._generateNewMap = function(source) {
   // one-to-one.
   for (var i = 0; i < lineCount-1; i++) {
     mappings += 'AACA;';
-    this.prevOriginalLine++;
   }
+  this.encoder.adjustLine(lineCount-1);
 
   this.content.mappings = mappings;
 };
@@ -151,40 +143,32 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
   var match;
   var mappings = this.content.mappings;
   var firstTime = true;
+  var decoder = new Coder();
 
   while (match = pattern.exec(srcMap.mappings)) {
     if (!firstTime && match[0] === 'AACA;') {
       mappings += 'AACA;';
-      this.prevOriginalLine += 1;
+      this.encoder.adjustLine(1);
       continue;
     }
-    var value = decode(match[1]);
-    if (!firstTime) {
-      value = this._relativize(value);
-    } else {
-      firstTime = false;
-    }
+    var value = decoder.decode(match[1]);
+    firstTime = false;
 
-    mappings += this._relativeEncode('prevGeneratedColumn', this.column + value.generatedColumn);
+    value.generatedColumn += this.column;
     this.column = 0;
 
     if (value.hasOwnProperty('source')) {
-      mappings += this._relativeEncode('prevSource', value.source + sourcesOffset);
+      value.source += sourcesOffset;
       sourcesOffset = 0;
     }
-    if (value.hasOwnProperty('originalLine')) {
-      mappings += this._relativeEncode('prevOriginalLine', value.originalLine);
-    }
-    if (value.hasOwnProperty('originalColumn')) {
-      mappings += this._relativeEncode('prevOriginalColumn', value.originalColumn);
-    }
     if (value.hasOwnProperty('name')) {
-      mappings += this._relativeEncode('prevName', value.name + namesOffset);
+      value.name += namesOffset;
       namesOffset = 0;
     }
+    mappings += this.encoder.encode(value);
     if (match[2] === ';') {
       mappings += ';';
-      this.prevGeneratedColumn = null;
+      this.encoder.resetColumn();
     }
     if (match[1] === ',') {
       mappings += ',';
@@ -204,45 +188,3 @@ SourceMap.prototype.end = function() {
     this.stream.end();
   }.bind(this));
 };
-
-SourceMap.prototype._relativeEncode = function(key, value) {
-  var prevValue = this[key];
-  this[key] = value;
-  if (typeof prevValue !== 'undefined') {
-    value -= prevValue;
-  }
-  return vlq.encode(value);
-};
-
-SourceMap.prototype._relativize = function(value) {
-  var output = {};
-  var fields = ['generatedColumn', 'source', 'originalLine', 'originalColumn', 'name'];
-  for (var i=0; i<fields.length;i++) {
-    var field = fields[i];
-    var prevField = 'prev' + capitalize(field);
-    if (value.hasOwnProperty(field)) {
-      output[field] = value[field];
-      if (typeof this[prevField] !== 'undefined') {
-        output[field] += this[prevField];
-      }
-    }
-  }
-  return output;
-};
-
-function capitalize(word) {
-  return word.slice(0,1).toUpperCase() + word.slice(1);
-}
-
-function decode(mapping) {
-  var buf = {rest: mapping};
-  var output = {};
-  var fields = ['generatedColumn', 'source', 'originalLine', 'originalColumn', 'name'];
-  var fieldIndex = 0;
-  while (fieldIndex < fields.length && buf.rest.length > 0) {
-    vlq.decode(buf.rest, buf);
-    output[fields[fieldIndex]] = buf.value;
-    fieldIndex++;
-  }
-  return output;
-}
