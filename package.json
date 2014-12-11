@@ -1,11 +1,12 @@
 {
-  "name": "fast-source-map",
-  "version": "1.0.0",
-  "description": "Fast source map generation & concatenation.",
+  "name": "fast-sourcemap-concat",
+  "version": "0.1.0",
+  "description": "Concatenate files while generating or propagating sourcemaps.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
+  "repository": "https://github.com/ef4/fast-sourcemap-concat",
   "author": "Edward Faulkner <ef@alum.mit.edu>",
   "license": "MIT",
   "dependencies": {
