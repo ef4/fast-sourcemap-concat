@@ -4,7 +4,7 @@
   "description": "Fast source map generation & concatenation.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Edward Faulkner <ef@alum.mit.edu>",
   "license": "MIT",
@@ -13,5 +13,9 @@
     "rsvp": "^3.0.14",
     "source-map": "^0.1.40",
     "source-map-url": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.1"
   }
 }
