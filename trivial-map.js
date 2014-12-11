@@ -21,7 +21,7 @@ module.exports = function(filename, source) {
   }
 
   for (var i = 0; i<lineCount-1;i++) {
-    mappings += util.nextLineContinues;
+    mappings += 'AACA;';
   }
   srcMap.mappings = mappings;
   return srcMap;

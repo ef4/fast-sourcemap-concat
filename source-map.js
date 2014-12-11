@@ -125,7 +125,7 @@ SourceMap.prototype._generateNewMap = function(source) {
   // For the remainder of the lines (if any), we're just following
   // one-to-one.
   for (var i = 0; i < lineCount-1; i++) {
-    mappings += util.nextLineContinues;
+    mappings += 'AACA;';
     this.prevOriginalLine++;
   }
 
@@ -154,6 +154,8 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 
   while (match = pattern.exec(srcMap.mappings)) {
     if (match[1]) {
+      // Fast path: we got a string of AACA, meaning lines continue to
+      // map one-to-one.
       mappings += match[1];
       this.prevOriginalLine += match[1].length / 5;
       continue;

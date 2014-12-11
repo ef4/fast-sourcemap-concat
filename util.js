@@ -8,8 +8,5 @@ module.exports = {
       count++;
     }
     return count;
-  },
-
-  nextLineContinues: [0,0,1,0].map(vlq.encode).join('') + ';'
-
+  }
 };
