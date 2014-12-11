@@ -134,43 +134,58 @@ SourceMap.prototype._assimilateExistingMap = function(filename, url) {
   content.sources = content.sources.concat(srcMap.sources);
   content.sourcesContent = content.sourcesContent.concat(srcMap.sourcesContent);
   content.names = content.names.concat(srcMap.names);
-
   this._scanMappings(srcMap, sourcesOffset, namesOffset);
 };
 
 SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset) {
-  var pattern = /([^;,]+)([;,])?/g;
-  var match;
   var mappings = this.content.mappings;
-  var firstTime = true;
   var decoder = new Coder();
+  var inputMappings = srcMap.mappings;
+  var pattern = /^([;,]*)([^;,]*)/g;
+  var continuation = /^[;,]*((?:AACA;)+)/;
+  var match;
 
-  while (match = pattern.exec(srcMap.mappings)) {
-    if (!firstTime && match[0] === 'AACA;') {
-      mappings += 'AACA;';
-      this.encoder.adjustLine(1);
-      decoder.adjustLine(1);
-      continue;
-    }
-    var value = decoder.decode(match[1]);
-    firstTime = false;
+  while (inputMappings.length > 0) {
+    pattern.lastIndex = 0;
+    match = pattern.exec(inputMappings);
 
-    value.generatedColumn += this.column;
-    this.column = 0;
+    // If the entry was preceded by separators, copy them through.
+    if (match[1]) {
+      mappings += match[1];
+      if (match[1].indexOf(';') !== -1) {
+        this.encoder.resetColumn();
+      }
+    }
 
-    if (value.hasOwnProperty('source')) {
-      value.source += sourcesOffset;
+    // Re-encode the entry.
+    if (match[2]){
+      var value = decoder.decode(match[2]);
+      value.generatedColumn += this.column;
+      this.column = 0;
+      if (sourcesOffset && value.hasOwnProperty('source')) {
+        value.source += sourcesOffset;
+        decoder.prev_source += sourcesOffset;
+        sourcesOffset = 0;
+      }
+      if (namesOffset && value.hasOwnProperty('name')) {
+        value.name += namesOffset;
+        decoder.prev_name += namesOffset;
+        namesOffset = 0;
+      }
+      mappings += this.encoder.encode(value);
     }
-    if (value.hasOwnProperty('name')) {
-      value.name += namesOffset;
-    }
-    mappings += this.encoder.encode(value);
-    if (match[2] === ';') {
-      mappings += ';';
-      this.encoder.resetColumn();
-    }
-    if (match[1] === ',') {
-      mappings += ',';
+
+    inputMappings = inputMappings.slice(pattern.lastIndex);
+
+    // Once we've applied any offsets, we can try to jump ahead. This
+    // is a significant optimization, especially when we're dong
+    // simple line-for-line concatenations.
+    if (!sourcesOffset && !namesOffset && (match = continuation.exec(inputMappings))) {
+      var lines = match[1].length / 5;
+      this.encoder.adjustLine(lines);
+      decoder.adjustLine(lines);
+      mappings += match[0];
+      inputMappings = inputMappings.slice(match[0].length);
     }
 
   }
