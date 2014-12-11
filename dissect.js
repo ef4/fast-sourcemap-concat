@@ -37,7 +37,7 @@ for (var i=0; i<lines.length;i++) {
       origLine = whichSource[value.originalLine];
     }
     if (typeof origLine === 'undefined'){
-      origLine = '<BAD LINE REFERENCE: ' + value.source + ',' + value.originalLine;
+      origLine = '<BAD LINE REFERENCE: ' + value.source + ',' + value.originalLine + '>';
     }
   }
 
