@@ -45,7 +45,7 @@ SourceMap.prototype._resolveFile = function(filename) {
 
 SourceMap.prototype._initializeStream = function() {
   var filename = this._resolveFile(this.outputFile);
-  mkdirp(path.dirname(filename));
+  mkdirp.sync(path.dirname(filename));
   this.stream = fs.createWriteStream(filename);
 };
 
@@ -111,6 +111,7 @@ SourceMap.prototype._generateNewMap = function(source) {
     this.column = 0;
     this.encoder.resetColumn();
     mappings += ';';
+    this.encoder.adjustLine(lineCount-1);
   }
 
   // For the remainder of the lines (if any), we're just following
@@ -118,7 +119,6 @@ SourceMap.prototype._generateNewMap = function(source) {
   for (var i = 0; i < lineCount-1; i++) {
     mappings += 'AACA;';
   }
-  this.encoder.adjustLine(lineCount-1);
 
   this.content.mappings = mappings;
 };
