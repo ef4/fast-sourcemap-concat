@@ -53,6 +53,9 @@ SourceMap.prototype._initializeStream = function() {
 SourceMap.prototype.addFile = function(filename) {
   var url;
   var source = fs.readFileSync(this._resolveFile(filename), 'utf-8');
+  if (source.length === 0) {
+    return;
+  }
 
   if (srcURL.existsIn(source)) {
     url = srcURL.getFrom(source);
