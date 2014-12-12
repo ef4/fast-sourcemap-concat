@@ -78,9 +78,6 @@ SourceMap.prototype.addFile = function(filename) {
 // will alter the line numbering for subsequent files.
 SourceMap.prototype.addSpace = function(source) {
   this.stream.write(source);
-  if (!this.shouldBuildMap) {
-    return;
-  }
   var lineCount = countNewLines(source);
   if (lineCount === 0) {
     this.column += source.length;
