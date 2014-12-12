@@ -1,6 +1,6 @@
 {
   "name": "fast-sourcemap-concat",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Concatenate files while generating or propagating sourcemaps.",
   "main": "index.js",
   "scripts": {
