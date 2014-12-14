@@ -4,6 +4,7 @@ var path = require('path');
 var RSVP = require('rsvp');
 var mkdirp = require('mkdirp');
 var Coder = require('./coder');
+var unlink = RSVP.denodeify(fs.unlink);
 
 module.exports = SourceMap;
 function SourceMap(opts) {
@@ -56,7 +57,7 @@ SourceMap.prototype.addFile = function(filename) {
   if (source.length === 0) {
     return;
   }
-
+  this.nonEmpty = true;
   if (srcURL.existsIn(source)) {
     url = srcURL.getFrom(source);
     source = srcURL.removeFrom(source);
@@ -77,6 +78,10 @@ SourceMap.prototype.addFile = function(filename) {
 // your JS file that don't need to have their own source mapping, but
 // will alter the line numbering for subsequent files.
 SourceMap.prototype.addSpace = function(source) {
+  if (source.length === 0) {
+    return;
+  }
+  this.nonEmpty = true;
   this.stream.write(source);
   var lineCount = countNewLines(source);
   if (lineCount === 0) {
@@ -192,6 +197,10 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 };
 
 SourceMap.prototype.end = function() {
+  if (!this.nonEmpty) {
+    this.stream.end();
+    return unlink(this._resolveFile(this.outputFile));
+  }
   var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
   this.stream.write('//# sourceMappingURL=' + path.basename(filename));
   fs.writeFileSync(filename, JSON.stringify(this.content));
