@@ -123,9 +123,23 @@ SourceMap.prototype._generateNewMap = function(source) {
   this.content.mappings = mappings;
 };
 
+SourceMap.prototype._resolveSourcemap = function(filename, url) {
+  var srcMap;
+  var match = /^data:[^;]+;base64,/.exec(url);
+  if (match) {
+    srcMap = new Buffer(url.slice(match[0].length), 'base64');
+  } else {
+    srcMap = fs.readFileSync(
+      path.join(path.dirname(this._resolveFile(filename)), url),
+      'utf8'
+    );
+  }
+
+  return JSON.parse(srcMap);
+};
+
 SourceMap.prototype._assimilateExistingMap = function(filename, url) {
-  var srcMap = fs.readFileSync(path.join(path.dirname(this._resolveFile(filename)), url), 'utf8');
-  srcMap = JSON.parse(srcMap);
+  var srcMap = this._resolveSourcemap(filename, url);
   var content = this.content;
   var sourcesOffset = content.sources.length;
   var namesOffset = content.names.length;
