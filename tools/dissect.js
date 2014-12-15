@@ -48,6 +48,7 @@ for (var i=0; i<lines.length;i++) {
     process.exit(-1);
   }
 
+  decoder.resetColumn();
   mappings[i].split(',').forEach(decode);
 
   var differential = mappings[i].split(',').map(function(elt) {
