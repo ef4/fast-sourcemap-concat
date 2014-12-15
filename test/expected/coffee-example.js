@@ -475,4 +475,7 @@ exports = {};
 
 }).call(this);
 
+/* My First Separator */function third(){
+  throw new Error("oh no");
+}
 //# sourceMappingURL=coffee-example.map

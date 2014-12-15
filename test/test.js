@@ -55,10 +55,12 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it("should correctly concatenate a sourcemapped coffeescript example", function() {
+  it.only("should correctly concatenate a sourcemapped coffeescript example", function() {
     var s = new SourceMap({outputFile: 'tmp/coffee-example.js'});
     s.addFile('fixtures/coffee/aa-loader.js');
     s.addFile('fixtures/coffee/rewriter.js');
+    s.addSpace("/* My First Separator */");
+    s.addFile('fixtures/other/third.js');
     return s.end().then(function(){
       expectFile('coffee-example.js').in('tmp');
       expectFile('coffee-example.map').in('tmp');
