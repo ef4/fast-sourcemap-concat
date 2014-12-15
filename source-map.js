@@ -44,9 +44,8 @@ SourceMap.prototype._resolveFile = function(filename) {
 };
 
 SourceMap.prototype._initializeStream = function() {
-  var filename = this._resolveFile(this.outputFile);
-  mkdirp.sync(path.dirname(filename));
-  this.stream = fs.createWriteStream(filename);
+  mkdirp.sync(path.dirname(this.outputFile));
+  this.stream = fs.createWriteStream(this.outputFile);
 };
 
 
@@ -65,9 +64,9 @@ SourceMap.prototype.addFile = function(filename) {
   this.stream.write(source);
 
   if (url) {
-    this._assimilateExistingMap(filename, url);
+    this._assimilateExistingMap(filename, url, source);
   } else {
-    this.content.sources.push('/' + filename);
+    this.content.sources.push(filename);
     this.content.sourcesContent.push(source);
     this._generateNewMap(source);
   }
@@ -123,7 +122,7 @@ SourceMap.prototype._generateNewMap = function(source) {
   this.content.mappings = mappings;
 };
 
-SourceMap.prototype._resolveSourcemap = function(filename, url) {
+SourceMap.prototype._resolveSourcemap = function(filename, url, source) {
   var srcMap;
   var match = /^data:[^;]+;base64,/.exec(url);
   if (match) {
@@ -138,17 +137,48 @@ SourceMap.prototype._resolveSourcemap = function(filename, url) {
   return JSON.parse(srcMap);
 };
 
-SourceMap.prototype._assimilateExistingMap = function(filename, url) {
-  var srcMap = this._resolveSourcemap(filename, url);
+SourceMap.prototype._assimilateExistingMap = function(filename, url, source) {
+  var srcMap = this._resolveSourcemap(filename, url, source);
   var content = this.content;
   var sourcesOffset = content.sources.length;
   var namesOffset = content.names.length;
 
-  content.sources = content.sources.concat(srcMap.sources);
-  content.sourcesContent = content.sourcesContent.concat(srcMap.sourcesContent);
+  debugger;
+  var ns = this._resolveSources(srcMap);
+  content.sources = content.sources.concat(this._resolveSources(srcMap));
+  content.sourcesContent = content.sourcesContent.concat(this._resolveSourcesContent(srcMap, filename));
   content.names = content.names.concat(srcMap.names);
   this._scanMappings(srcMap, sourcesOffset, namesOffset);
 };
+
+SourceMap.prototype._resolveSources = function(srcMap) {
+  var baseDir = this.baseDir;
+  if (!baseDir) {
+    return srcMap.sources;
+  }
+  return srcMap.sources.map(function(src) {
+    return src.replace(baseDir, '');
+  });
+};
+
+SourceMap.prototype._resolveSourcesContent = function(srcMap, filename) {
+  if (srcMap.sourcesContent) {
+    // Upstream srcmap already had inline content, so easy.
+    return srcMap.sourcesContent;
+  } else {
+    // Look for original sources relative to our input source filename.
+    return srcMap.sources.map(function(source){
+      var fullPath;
+      if (source.slice(0, 1) === '/') {
+        fullPath = source;
+      } else {
+        fullPath = path.join(path.dirname(this._resolveFile(filename)), source);
+      }
+      return fs.readFileSync(fullPath, 'utf-8');
+    }.bind(this));
+  }
+};
+
 
 SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset) {
   var mappings = this.content.mappings;
@@ -206,7 +236,7 @@ SourceMap.prototype._scanMappings = function(srcMap, sourcesOffset, namesOffset)
 };
 
 SourceMap.prototype.end = function() {
-  var filename = this._resolveFile(this.outputFile).replace(/\.js$/, '') + '.map';
+  var filename = this.outputFile.replace(/\.js$/, '') + '.map';
   this.stream.write('//# sourceMappingURL=' + path.basename(filename));
   fs.writeFileSync(filename, JSON.stringify(this.content));
   return new RSVP.Promise(function(resolve, reject) {

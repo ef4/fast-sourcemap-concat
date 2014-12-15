@@ -5,6 +5,7 @@ var RSVP = require('rsvp');
 RSVP.on('error', function(err){throw err;});
 var mkdirp = require('mkdirp');
 var fs = require('fs');
+var path = require('path');
 
 describe('fast sourcemap concat', function() {
   var initialCwd;
@@ -36,13 +37,8 @@ describe('fast sourcemap concat', function() {
       s.addFile('tmp/intermediate2.js');
       return s.end();
     }).then(function(){
-      var expectedJS = fs.readFileSync('expected/final.js', 'utf8');
-      var actualJS = fs.readFileSync('tmp/final.js', 'utf8');
-      assert.equal(actualJS, expectedJS, 'JS output');
-
-      var expectedMap = fs.readFileSync('expected/final.map', 'utf8');
-      var actualMap = fs.readFileSync('tmp/final.map', 'utf8');
-      assert.equal(actualMap, expectedMap, 'map output');
+      expectFile('final.js').in('tmp');
+      expectFile('final.map').in('tmp');
     });
   });
 
@@ -54,16 +50,58 @@ describe('fast sourcemap concat', function() {
     s.addSpace("/* My Second */");
     s.addFile('fixtures/other/fourth.js');
     return s.end().then(function(){
+      expectFile('from-inline.js').in('tmp');
+      expectFile('from-inline.map').in('tmp');
+    });
+  });
 
-      var expectedJS = fs.readFileSync('expected/from-inline.js', 'utf8');
-      var actualJS = fs.readFileSync('tmp/from-inline.js', 'utf8');
-      assert.equal(actualJS, expectedJS, 'JS output');
+  it.skip("should correctly concatenate a sourcemapped coffeescript example", function() {
+    var s = new SourceMap({outputFile: 'tmp/coffee-example.js'});
+    fs.readdirSync('fixtures/coffee').sort().forEach(function(file){
+      if (/\.js$/.test(file)) {
+        s.addFile(path.join('fixtures/coffee', file));
+      }
+    });
+    return s.end().then(function(){
+      expectFile('coffee-example.js').in('tmp');
+      expectFile('coffee-example.map').in('tmp');
+    });
+  });
 
-      var expectedMap = fs.readFileSync('expected/final.map', 'utf8');
-      var actualMap = fs.readFileSync('tmp/final.map', 'utf8');
-      assert.equal(actualMap, expectedMap, 'map output');
-
+  it("should discover external sources", function() {
+    var s = new SourceMap({outputFile: 'tmp/external-content.js', baseDir: path.join(__dirname, 'fixtures')});
+    s.addFile('other/third.js');
+    s.addSpace("/* My First Separator */");
+    s.addFile('external-content/all-inner.js');
+    s.addSpace("/* My Second */");
+    s.addFile('other/fourth.js');
+    return s.end().then(function(){
+      expectFile('external-content.js').in('tmp');
+      expectFile('external-content.map').in('tmp');
     });
   });
 
 });
+
+function expectFile(filename) {
+  var stripURL = false;
+  return {
+      in: function(dir) {
+        var actualContent = fs.readFileSync(path.join(dir, filename), 'utf-8');
+        fs.writeFileSync(path.join(__dirname, 'actual', filename), actualContent);
+
+        var expectedContent;
+        try {
+          expectedContent = fs.readFileSync(path.join(__dirname, 'expected', filename), 'utf-8');
+          if (stripURL) {
+            expectedContent = expectedContent.replace(/\/\/# sourceMappingURL=.*$/, '');
+          }
+
+        } catch (err) {
+          console.warn("Missing expcted file: " + path.join(__dirname, 'expected', filename));
+        }
+        assert.equal(actualContent, expectedContent, "discrepancy in " + filename);
+        return this;
+      }
+  };
+}
