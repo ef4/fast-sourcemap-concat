@@ -1,2 +1,3 @@
 require('mocha-jshint')([
+  'lib'
 ]);
