@@ -130,6 +130,15 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it("supports mapDir", function() {
+    var s = new SourceMap({mapFile: 'tmp/maps/custom.map', mapURL: '/maps/custom.map', outputFile: 'tmp/assets/mapdird.js'});
+    s.addFile('fixtures/inner/first.js');
+    return s.end().then(function(){
+      expectFile('mapdird.js').in('tmp/assets');
+      expectFile('custom.map').in('tmp/maps');
+    });
+  });
+
 });
 
 function expectFile(filename) {
