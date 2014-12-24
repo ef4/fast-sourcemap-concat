@@ -130,12 +130,18 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it("supports mapDir", function() {
+  it("supports mapFile & mapURL", function() {
     var s = new SourceMap({mapFile: 'tmp/maps/custom.map', mapURL: '/maps/custom.map', outputFile: 'tmp/assets/mapdird.js'});
     s.addFile('fixtures/inner/first.js');
     return s.end().then(function(){
       expectFile('mapdird.js').in('tmp/assets');
       expectFile('custom.map').in('tmp/maps');
+      s = new SourceMap({mapFile: 'tmp/maps/custom2.map', mapURL: '/maps/custom2.map', outputFile: 'tmp/assets/mapdird2.js', baseDir: path.resolve('tmp')});
+      s.addFile('assets/mapdird.js');
+      return s.end();
+    }).then(function(){
+      expectFile('mapdird2.js').in('tmp/assets');
+      expectFile('custom2.map').in('tmp/maps');
     });
   });
 
