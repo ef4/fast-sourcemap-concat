@@ -6,6 +6,7 @@ RSVP.on('error', function(err){throw err;});
 var mkdirp = require('mkdirp');
 var fs = require('fs');
 var path = require('path');
+var rimraf = require('rimraf');
 
 describe('fast sourcemap concat', function() {
   var initialCwd;
@@ -16,6 +17,7 @@ describe('fast sourcemap concat', function() {
     mkdirp('tmp');
   });
   afterEach(function() {
+    rimraf.sync('tmp');
     process.chdir(initialCwd);
   });
 
@@ -151,6 +153,19 @@ describe('fast sourcemap concat', function() {
     return s.end().then(function() {
       var result = fs.readFileSync(FILE, 'utf-8');
       assert.equal(result, "/*# sourceMappingURL=mapcommenttype.css.map */");
+    });
+  });
+
+  it("should tolerate broken sourcemap URL", function() {
+    var s = new SourceMap({outputFile: 'tmp/with-broken-input-map.js', baseDir: path.join(__dirname, 'fixtures')});
+    s.addFile('other/third.js');
+    s.addSpace("/* My First Separator */");
+    s.addFile('external-content/broken-link.js');
+    s.addSpace("/* My Second */");
+    s.addFile('other/fourth.js');
+    return s.end().then(function(){
+      expectFile('with-broken-input-map.js').in('tmp');
+      expectFile('with-broken-input-map.map').in('tmp');
     });
   });
 
