@@ -145,14 +145,14 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-	it("outputs block comments when 'mapCommentType' is 'block'", function() {
-		var FILE = 'tmp/mapcommenttype.css';
-		var s = new SourceMap({outputFile: FILE, mapCommentType: 'block'});
-		return s.end().then(function() {
-			var result = fs.readFileSync(FILE, 'utf-8');
-			assert.equal(result, "/*# sourceMappingURL=mapcommenttype.css.map */");
-		});
-	});
+  it("outputs block comments when 'mapCommentType' is 'block'", function() {
+    var FILE = 'tmp/mapcommenttype.css';
+    var s = new SourceMap({outputFile: FILE, mapCommentType: 'block'});
+    return s.end().then(function() {
+      var result = fs.readFileSync(FILE, 'utf-8');
+      assert.equal(result, "/*# sourceMappingURL=mapcommenttype.css.map */");
+    });
+  });
 
 });
 
