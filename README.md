@@ -13,4 +13,4 @@ base64-vlq implementation, which is in turn based on the version in
 the Closure Compiler. 
 
 We can concatenate much faster than source-map because we are
-specifically optimized for just that case.
+specifically optimized for line-by-line concatenation.
