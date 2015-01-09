@@ -5,6 +5,8 @@ This library lets you concatenate files (with or without their own
 pre-generated sourcemaps), and get a single output file along with a
 sourcemap.
 
+It was written for use in ember-cli via broccoli-sourcemap-concat.
+
 source-map dependency
 ---------------------
 
