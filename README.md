@@ -9,7 +9,7 @@ source-map dependency
 ---------------------
 
 We depend on mozilla's source-map library, but only to use their
-base64-vlq implementation, which is in turn based on the version on
+base64-vlq implementation, which is in turn based on the version in
 the Closure Compiler. 
 
 We can concatenate much faster than source-map because we are
