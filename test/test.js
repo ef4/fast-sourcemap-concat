@@ -7,6 +7,7 @@ var mkdirp = require('mkdirp');
 var fs = require('fs');
 var path = require('path');
 var rimraf = require('rimraf');
+var sinon = require('sinon');
 
 describe('fast sourcemap concat', function() {
   var initialCwd;
@@ -156,8 +157,9 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it("should tolerate broken sourcemap URL", function() {
+  it("should warn but tolerate broken sourcemap URL", function() {
     var s = new SourceMap({outputFile: 'tmp/with-broken-input-map.js', baseDir: path.join(__dirname, 'fixtures')});
+    s._warn = sinon.spy();
     s.addFile('other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFile('external-content/broken-link.js');
@@ -166,6 +168,7 @@ describe('fast sourcemap concat', function() {
     return s.end().then(function(){
       expectFile('with-broken-input-map.js').in('tmp');
       expectFile('with-broken-input-map.map').in('tmp');
+      assert(s._warn.called, 'generates warning');
     });
   });
 
