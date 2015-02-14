@@ -1,5 +1,6 @@
 /* global describe, beforeEach, afterEach, it */
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var SourceMap = require('..');
 var RSVP = require('rsvp');
 RSVP.on('error', function(err){throw err;});
@@ -112,9 +113,7 @@ describe('fast sourcemap concat', function() {
       expectFile('external-content.js').in('tmp');
       expectFile('external-content.map').in('tmp');
       assert.deepEqual(cache, {
-        "7743064ff83a0c5a7558e247eb90b37b": { encoder : "AAEAA", lines : 3 },
-        "2a257e37006faed088631037626f5117": { encoder: "AEAAA", lines: 11 },
-        "22ae6265717075a5ee113b8c4274b5a2": { encoder: "ACGAA", lines: 6 }
+        "2a257e37006faed088631037626f5117": { encoder: "AEAAA", lines: 11 }
       });
     });
   });
@@ -135,18 +134,23 @@ describe('fast sourcemap concat', function() {
         return s.end();
       }).then(function(){
         s = new SourceMap({cache: cache, outputFile: 'tmp/' + finalFile});
+        sinon.spy(s, '_scanMappings');
         s.addFile('tmp/intermediate.js');
         s.addFile('fixtures/other/third.js');
         s.addFile('tmp/intermediate2.js');
-        return s.end();
+        return s.end().then(function(){
+          return s._scanMappings;
+        });
       });
     }
 
     return once('firstPass.js').then(function(){
       return once('final.js');
-    }).then(function(){
+    }).then(function(spy){
       expectFile('final.js').in('tmp');
       expectFile('final.map').in('tmp');
+      expect(spy.getCall(0).args[3], 'should receive cacheHint').to.be.ok();
+      expect(spy.getCall(1).args[3], 'should receive cacheHint').to.be.ok();      
     });
   });
 
@@ -189,6 +193,31 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it("corrects upstream sourcemap that is too short", function() {
+    var s = new SourceMap({outputFile: 'tmp/test-short.js'});
+    s.addFile('fixtures/other/third.js');
+    s.addFile('fixtures/short/rewriter.js');
+    s.addFile('fixtures/other/fourth.js');
+    return s.end().then(function(){
+      expectFile('test-short.js').in('tmp');
+      expectFile('test-short.map').in('tmp');
+    });
+  });
+
+  it("corrects upstream sourcemap that is too short, on cached second build", function() {
+    var cache = {};
+    function once() {
+      var s = new SourceMap({cache: cache, outputFile: 'tmp/test-short.js'});
+      s.addFile('fixtures/other/third.js');
+      s.addFile('fixtures/short/rewriter.js');
+      s.addFile('fixtures/other/fourth.js');
+      return s.end();
+    }
+    return once().then(once).then(function(){
+      expectFile('test-short.js').in('tmp');
+      expectFile('test-short.map').in('tmp');
+    });
+  });
 });
 
 function expectFile(filename) {
