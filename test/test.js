@@ -150,7 +150,7 @@ describe('fast sourcemap concat', function() {
       expectFile('final.js').in('tmp');
       expectFile('final.map').in('tmp');
       expect(spy.getCall(0).args[3], 'should receive cacheHint').to.be.ok();
-      expect(spy.getCall(1).args[3], 'should receive cacheHint').to.be.ok();      
+      expect(spy.getCall(1).args[3], 'should receive cacheHint').to.be.ok();
     });
   });
 
