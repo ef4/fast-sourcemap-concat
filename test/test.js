@@ -254,7 +254,7 @@ function expectFile(filename) {
         } catch (err) {
           console.warn("Missing expcted file: " + path.join(__dirname, 'expected', filename));
         }
-        assert.equal(actualContent, expectedContent, "discrepancy in " + filename);
+        expect(actualContent).equals(expectedContent, "discrepancy in " + filename);
         return this;
       }
   };

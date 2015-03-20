@@ -4,7 +4,7 @@
   "description": "Concatenate files while generating or propagating sourcemaps.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --inline-diffs"
   },
   "repository": "https://github.com/ef4/fast-sourcemap-concat",
   "author": "Edward Faulkner <ef@alum.mit.edu>",
