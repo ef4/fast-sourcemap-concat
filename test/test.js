@@ -218,6 +218,23 @@ describe('fast sourcemap concat', function() {
       expectFile('test-short.map').in('tmp');
     });
   });
+
+  it("deals with missing newline followed by single newline", function() {
+    var s = new SourceMap({outputFile: 'tmp/iife-wrapping.js'});
+    s.addFile('fixtures/other/fourth.js');
+    s.addSpace('\n');
+    s.addFile('fixtures/iife-wrapping/iife-start');
+    s.addSpace('\n');
+    s.addFile('fixtures/other/third.js');
+    s.addSpace('\n');
+    s.addFile('fixtures/iife-wrapping/iife-end');
+
+    return s.end().then(function(){
+      expectFile('iife-wrapping.js').in('tmp');
+      expectFile('iife-wrapping.map').in('tmp');
+    });
+
+  });
 });
 
 function expectFile(filename) {
