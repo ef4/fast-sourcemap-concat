@@ -37,6 +37,7 @@ function padUpTo(str, padding) {
   return str;
 }
 
+var lastOrigLine;
 var value;
 function decode(mapping) {
   value = decoder.decode(mapping);
@@ -75,10 +76,11 @@ for (var i=0; i<lines.length;i++) {
   console.log([
     padUpTo(differential, colWidth),
     padUpTo(fileDesc, colWidth),
-    padUpTo(origLine, colWidth),
+    padUpTo(origLine === lastOrigLine ? '' : origLine, colWidth),
     ' | ',
     padUpTo(lines[i], colWidth)
   ].join(''));
+  lastOrigLine = origLine;
   if (i % 20 === 0) {
     var sep = '';
     for (var col=0; col<colWidth*4;col++){
