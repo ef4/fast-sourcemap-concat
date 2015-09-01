@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^0.5.1",
+    "debug": "^2.2.0",
     "mkdirp": "^0.5.0",
     "rsvp": "^3.0.14",
     "source-map": "^0.4.2",
