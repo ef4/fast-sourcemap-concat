@@ -235,6 +235,30 @@ describe('fast sourcemap concat', function() {
     });
 
   });
+
+  it("should tolerate input sourcemaps with fewer sourcesContent than sources", function() {
+    var s = new SourceMap({outputFile: 'tmp/too-many-sources-out.js'});
+    s.addFile('fixtures/other/fourth.js');
+    s.addFile('fixtures/emptyish/too-many-sources.js');
+    s.addFile('fixtures/other/third.js');
+    return s.end().then(function(){
+      expectFile('too-many-sources-out.js').in('tmp');
+      expectFile('too-many-sources-out.map').in('tmp');
+    });
+  });
+
+  it("should tolerate input sourcemaps with more sourcesContent than sources", function() {
+    var s = new SourceMap({outputFile: 'tmp/too-few-sources-out.js'});
+    s.addFile('fixtures/other/fourth.js');
+    s.addFile('fixtures/emptyish/too-few-sources.js');
+    s.addFile('fixtures/other/third.js');
+    return s.end().then(function(){
+      expectFile('too-few-sources-out.js').in('tmp');
+      expectFile('too-few-sources-out.map').in('tmp');
+    });
+
+  });
+
 });
 
 function expectFile(filename) {
