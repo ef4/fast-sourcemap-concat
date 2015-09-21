@@ -17,7 +17,7 @@ var lines = src.split(newline);
 var mappings = map.mappings.split(';');
 var splitContents;
 if (map.sourcesContent) {
-  splitContents = map.sourcesContent.map(function(src){return src.split(newline);});
+  splitContents = map.sourcesContent.map(function(src){return src ? src.split(newline) : [];});
 } else {
   splitContents = map.sources.map(function(name){
     return fs.readFileSync(path.join(path.dirname(process.argv[2]), name), 'utf-8').split(newline);
