@@ -13,7 +13,7 @@ var path = require('path');
 var src = fs.readFileSync(process.argv[2], 'utf-8');
 var map;
 
-if (srcURL.existsIn(src)) {
+if (srcURL.existsIn(src) && process.argv.length < 4) {
   var url = srcURL.getFrom(src);
   src = srcURL.removeFrom(src);
   map = SourceMap.prototype._resolveSourcemap(process.argv[2], url);
