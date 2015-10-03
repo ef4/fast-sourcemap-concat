@@ -113,7 +113,7 @@ describe('fast sourcemap concat', function() {
       expectFile('external-content.js').in('tmp');
       expectFile('external-content.map').in('tmp');
       assert.deepEqual(cache, {
-        "2a257e37006faed088631037626f5117": { encoder: "AEAAA", lines: 11 }
+        "b02a65b427e623a118a1d7ee09aeecbd": { encoder: "AEAAA", lines: 11 }
       });
     });
   });
@@ -259,6 +259,38 @@ describe('fast sourcemap concat', function() {
 
   });
 
+  it("should update when input source code is stable but sourcemap has changed", function() {
+    // This case occurs when the user makes non-semantic changes to
+    // their original source code, which therefore gets preprocessed
+    // into identical output that has a different sourceMap.
+
+    var cache = {};
+
+    function runOnce() {
+      var s = new SourceMap({outputFile: 'tmp/hello-world-output.js', cache: cache});
+      s.addFile('fixtures/inner/first.js');
+      s.addFile('tmp/hello-world.js');
+      s.addFile('fixtures/inner/second.js');
+      return s.end();
+    }
+
+    copySync('fixtures/typescript/hello-world-1.js', 'tmp/hello-world.js');
+    return runOnce().then(function(){
+      expectFile('hello-world-output.js').in('tmp');
+      copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-1.map');
+      expectFile('hello-world-output-1.map').in('tmp');
+
+      copySync('fixtures/typescript/hello-world-2.js', 'tmp/hello-world.js');
+      return runOnce();
+    }).then(function() {
+      expectFile('hello-world-output.js').in('tmp');
+      copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-2.map');
+      expectFile('hello-world-output-2.map').in('tmp');
+    });
+
+  });
+
+
 });
 
 function expectFile(filename) {
@@ -282,4 +314,8 @@ function expectFile(filename) {
         return this;
       }
   };
+}
+
+function copySync(src, dest) {
+  fs.writeFileSync(dest, fs.readFileSync(src));
 }
