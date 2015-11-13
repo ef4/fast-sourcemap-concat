@@ -9,6 +9,7 @@ var fs = require('fs');
 var path = require('path');
 var rimraf = require('rimraf');
 var sinon = require('sinon');
+var EOL = require('os').EOL;
 
 describe('fast sourcemap concat', function() {
   var initialCwd;
@@ -233,7 +234,6 @@ describe('fast sourcemap concat', function() {
       expectFile('iife-wrapping.js').in('tmp');
       expectFile('iife-wrapping.map').in('tmp');
     });
-
   });
 
   it("should tolerate input sourcemaps with fewer sourcesContent than sources", function() {
@@ -256,7 +256,6 @@ describe('fast sourcemap concat', function() {
       expectFile('too-few-sources-out.js').in('tmp');
       expectFile('too-few-sources-out.map').in('tmp');
     });
-
   });
 
   it("should update when input source code is stable but sourcemap has changed", function() {
@@ -287,35 +286,39 @@ describe('fast sourcemap concat', function() {
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-2.map');
       expectFile('hello-world-output-2.map').in('tmp');
     });
-
   });
-
-
 });
 
 function expectFile(filename) {
   var stripURL = false;
   return {
-      in: function(dir) {
-        var actualContent = fs.readFileSync(path.join(dir, filename), 'utf-8');
-        fs.writeFileSync(path.join(__dirname, 'actual', filename), actualContent);
+    in: function(dir) {
+      var actualContent = ensurePosix(fs.readFileSync(path.join(dir, filename), 'utf-8'));
+      fs.writeFileSync(path.join(__dirname, 'actual', filename), actualContent);
 
-        var expectedContent;
-        try {
-          expectedContent = fs.readFileSync(path.join(__dirname, 'expected', filename), 'utf-8');
-          if (stripURL) {
-            expectedContent = expectedContent.replace(/\/\/# sourceMappingURL=.*$/, '');
-          }
-
-        } catch (err) {
-          console.warn("Missing expcted file: " + path.join(__dirname, 'expected', filename));
+      var expectedContent;
+      try {
+        expectedContent = ensurePosix(fs.readFileSync(path.join(__dirname, 'expected', filename), 'utf-8'));
+        if (stripURL) {
+          expectedContent = expectedContent.replace(/\/\/# sourceMappingURL=.*$/, '');
         }
-        expect(actualContent).equals(expectedContent, "discrepancy in " + filename);
-        return this;
+
+      } catch (err) {
+        console.warn("Missing expcted file: " + path.join(__dirname, 'expected', filename));
       }
+      expect(actualContent).equals(expectedContent, "discrepancy in " + filename);
+      return this;
+    }
   };
 }
 
 function copySync(src, dest) {
   fs.writeFileSync(dest, fs.readFileSync(src));
+}
+
+function ensurePosix(string) {
+  if (EOL !== '\n') {
+    string = string.split(EOL).join('\n');
+  }
+  return string;
 }
