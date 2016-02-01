@@ -47,6 +47,21 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it("should support file-less concatenation", function() {
+    var s = new SourceMap({file: 'from-inline.js', mapURL: 'from-inline.map'});
+    s.addFile('fixtures/other/third.js');
+    s.addSpace("/* My First Separator */");
+    s.addFile('fixtures/inline-mapped.js');
+    s.addSpace("/* My Second */");
+    s.addFile('fixtures/other/fourth.js');
+    return s.end().then(function(r){
+      expect(r).to.be.a('object');
+      expect(r.map).to.be.a('object');
+      expectFile('from-inline.js', r.code || "empty").in('tmp');
+      expectFile('from-inline.map', JSON.stringify(r.map) || "empty").in('tmp');
+    });
+  });
+
   it("should accept inline sourcemaps", function() {
     var s = new SourceMap({outputFile: 'tmp/from-inline.js'});
     s.addFile('fixtures/other/third.js');
@@ -289,11 +304,11 @@ describe('fast sourcemap concat', function() {
   });
 });
 
-function expectFile(filename) {
+function expectFile(filename, actualContent) {
   var stripURL = false;
   return {
     in: function(dir) {
-      var actualContent = ensurePosix(fs.readFileSync(path.join(dir, filename), 'utf-8'));
+      actualContent = actualContent || ensurePosix(fs.readFileSync(path.join(dir, filename), 'utf-8'));
       fs.writeFileSync(path.join(__dirname, 'actual', filename), actualContent);
 
       var expectedContent;
