@@ -92,6 +92,24 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it("should allow adding map contents from string", function() {
+    var filePath = 'fixtures/from-string/external-mapped.js';
+    var contents = fs.readFileSync(filePath, { encoding: 'utf8' });
+    var map = fs.readFileSync(filePath+'-map.map', { encoding: 'utf8' });
+
+    var s = new SourceMap({outputFile: 'tmp/from-string.js'});
+    s.addFile('fixtures/other/third.js');
+    s.addSpace("/* My First Separator */");
+    s.addFileSource('fixtures/external-mapped.js', contents, map);
+    s.addSpace("/* My Second */");
+    s.addFile('fixtures/other/fourth.js');
+
+    return s.end().then(function(){
+      expectFile('from-string.js').in('tmp');
+      expectFile('from-string.map').in('tmp');
+    });
+  });
+
   it("should correctly concatenate a sourcemapped coffeescript example", function() {
     var s = new SourceMap({outputFile: 'tmp/coffee-example.js'});
     s.addFile('fixtures/coffee/aa-loader.js');
