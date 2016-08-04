@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha --inline-diffs"
   },
+  "files": [
+    "lib"
+  ],
   "repository": "https://github.com/ef4/fast-sourcemap-concat",
   "author": "Edward Faulkner <ef@alum.mit.edu>",
   "license": "MIT",
