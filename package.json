@@ -4,7 +4,8 @@
   "description": "Concatenate files while generating or propagating sourcemaps.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha --inline-diffs"
+    "test": "mocha --inline-diffs",
+    "test:debug": "mocha --no-timeouts debug"
   },
   "files": [
     "lib"
