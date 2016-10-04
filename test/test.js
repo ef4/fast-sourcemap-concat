@@ -190,7 +190,8 @@ describe('fast sourcemap concat', function() {
     var s = new SourceMap({outputFile: FILE, mapCommentType: 'block'});
     return s.end().then(function() {
       var result = fs.readFileSync(FILE, 'utf-8');
-      assert.equal(result, "/*# sourceMappingURL=mapcommenttype.css.map */");
+      var expected = "/*# sourceMappingURL=mapcommenttype.css.map */\n";
+      assert.equal(result, expected);
     });
   });
 
