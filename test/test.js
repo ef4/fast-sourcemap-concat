@@ -302,6 +302,66 @@ describe('fast sourcemap concat', function() {
       expectFile('hello-world-output-2.map').in('tmp');
     });
   });
+
+  describe('CONCAT_STATS', function() {
+    var outputs;
+    var concat;
+
+    beforeEach(function() {
+      process.env.CONCAT_STATS = true;
+      outputs = [];
+
+      concat = new SourceMap({
+        outputFile: 'tmp/hello-world-output.js',
+        cache: {}
+      });
+
+      concat.writeConcatStatsSync = function(outputPath, content) {
+        outputs.push({
+          outputPath: outputPath,
+          content: content
+        });
+      };
+    });
+
+    afterEach(function() {
+      delete process.env.CONCAT_STATS;
+    });
+
+    it('correctly emits file for given concat', function() {
+      concat.addFile('fixtures/inner/second.js');
+      concat.addFile('fixtures/inner/first.js');
+
+      expect(outputs.length).to.eql(0);
+
+      return concat.end().then(function() {
+        expect(outputs.length).to.eql(1);
+
+        var outputPath = process.cwd() + '/concat-stats-for/' + concat.id + '-' + path.basename(concat.outputFile) + '.json';
+        expect(outputs[0].outputPath).to.eql(outputPath);
+        expect(outputs[0].content).to.eql({
+          outputFile: concat.outputFile,
+          sizes: {
+            'fixtures/inner/first.js': 100,
+            'fixtures/inner/second.js': 66
+          }
+        });
+      });
+    });
+
+    it('correctly DOES NOT emits file for given concat, if the flag is not set', function() {
+      delete process.env.CONCAT_STATS;
+
+      concat.addFile('fixtures/inner/second.js');
+      concat.addFile('fixtures/inner/first.js');
+
+      expect(outputs.length).to.eql(0);
+
+      return concat.end().then(function() {
+        expect(outputs.length).to.eql(0);
+      });
+    })
+  });
 });
 
 function expectFile(filename, actualContent) {
