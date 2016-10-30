@@ -1,5 +1,7 @@
-Fast Source Map Concatenation
+Fast Source Map Concatenation 
 -----------------------------
+
+[![Build Status](https://travis-ci.org/ef4/fast-sourcemap-concat.svg?branch=master)](https://travis-ci.org/ef4/fast-sourcemap-concat)
 
 This library lets you concatenate files (with or without their own
 pre-generated sourcemaps), and get a single output file along with a
