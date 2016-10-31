@@ -2,6 +2,7 @@ Fast Source Map Concatenation
 -----------------------------
 
 [![Build Status](https://travis-ci.org/ef4/fast-sourcemap-concat.svg?branch=master)](https://travis-ci.org/ef4/fast-sourcemap-concat)
+[![Build status](https://ci.appveyor.com/api/projects/status/0iy8on5vieoh3mp2/branch/master?svg=true)](https://ci.appveyor.com/project/embercli/fast-sourcemap-concat/branch/master)
 
 This library lets you concatenate files (with or without their own
 pre-generated sourcemaps), and get a single output file along with a
