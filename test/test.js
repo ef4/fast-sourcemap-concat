@@ -10,6 +10,7 @@ var path = require('path');
 var rimraf = require('rimraf');
 var sinon = require('sinon');
 var EOL = require('os').EOL;
+var validateSourcemap = require('sourcemap-validator');
 
 describe('fast sourcemap concat', function() {
   var initialCwd;
@@ -254,6 +255,17 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it.only("absorbs broken (sprintf)", function() {
+    var s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
+
+    s.addFile('fixtures/sprintf/sprintf.min.js');
+
+    s.addFile('fixtures/sprintf/first.js');
+    return s.end().then(function(){
+      expectValidSourcemap('sprintf-multi.js').in('tmp');
+    });
+  });
+
   it("deals with missing newline followed by single newline", function() {
     var s = new SourceMap({outputFile: 'tmp/iife-wrapping.js'});
     s.addFile('fixtures/other/fourth.js');
@@ -406,6 +418,27 @@ function expectFile(filename, actualContent) {
   };
 }
 
+function expectValidSourcemap(jsFilename, mapFilename) {
+  return {
+    in: function (result, subdir) {
+      if (!subdir) {
+        subdir = '.';
+      }
+
+      if (!mapFilename) {;
+        mapFilename = jsFilename.replace(/\.js$/, '.map');
+      }
+
+      expectFile(jsFilename).in(result, subdir);
+      expectFile(mapFilename).in(result, subdir);
+
+      var actualMin = fs.readFileSync(path.join(result, subdir, jsFilename), 'utf-8');
+      var actualMap = fs.readFileSync(path.join(result, subdir, mapFilename), 'utf-8');
+
+      validateSourcemap(actualMin, actualMap, {});
+    }
+  }
+}
 function copySync(src, dest) {
   fs.writeFileSync(dest, fs.readFileSync(src));
 }
