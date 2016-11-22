@@ -255,7 +255,7 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it.only("absorbs broken (sprintf)", function() {
+  it("absorbs broken (sprintf)", function() {
     var s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
 
     s.addFile('fixtures/sprintf/sprintf.min.js');
