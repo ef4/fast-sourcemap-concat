@@ -255,7 +255,7 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it.only("absorbs broken (sprintf)", function() {
+  it("absorbs broken (sprintf)", function() {
     var s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
 
     s.addFile('fixtures/sprintf/sprintf.min.js');
@@ -282,25 +282,33 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it("should tolerate input sourcemaps with fewer sourcesContent than sources", function() {
+  it("should tolerate sourceMaps that do not specify sourcesContent", function() {
+    var s = new SourceMap({outputFile: 'tmp/no-sources-content-out.js'});
+    s.addFile('fixtures/other/fourth.js');
+    s.addFile('fixtures/emptyish/src/b.js');
+    s.addFile('fixtures/other/third.js');
+    return s.end().then(function(){
+      expectValidSourcemap('no-sources-content-out.js', 'no-sources-content-out.map').in('tmp');
+    });
+  });
+
+  it("should discard invalid sourcemaps with more sources than sourcesContent", function() {
     var s = new SourceMap({outputFile: 'tmp/too-many-sources-out.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addFile('fixtures/emptyish/too-many-sources.js');
     s.addFile('fixtures/other/third.js');
     return s.end().then(function(){
-      expectFile('too-many-sources-out.js').in('tmp');
-      expectFile('too-many-sources-out.map').in('tmp');
+      expectValidSourcemap('too-many-sources-out.js', 'too-many-sources-out.map').in('tmp');
     });
   });
 
-  it("should tolerate input sourcemaps with more sourcesContent than sources", function() {
+  it("should discard invalid sourcemaps with more sourcesContent than sources", function() {
     var s = new SourceMap({outputFile: 'tmp/too-few-sources-out.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addFile('fixtures/emptyish/too-few-sources.js');
     s.addFile('fixtures/other/third.js');
     return s.end().then(function(){
-      expectFile('too-few-sources-out.js').in('tmp');
-      expectFile('too-few-sources-out.map').in('tmp');
+      expectValidSourcemap('too-few-sources-out.js', 'too-few-sources-out.map').in('tmp');
     });
   });
 
@@ -319,18 +327,21 @@ describe('fast sourcemap concat', function() {
       return s.end();
     }
 
-    copySync('fixtures/typescript/hello-world-1.js', 'tmp/hello-world.js');
+    copySync('fixtures/typescript/1/hello-world.js', 'tmp/hello-world.js');
+    copySync('fixtures/typescript/1/hello-world.ts', 'tmp/hello-world.ts');
     return runOnce().then(function(){
       expectFile('hello-world-output.js').in('tmp');
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-1.map');
-      expectFile('hello-world-output-1.map').in('tmp');
 
-      copySync('fixtures/typescript/hello-world-2.js', 'tmp/hello-world.js');
+      expectValidSourcemap('hello-world-output.js', 'hello-world-output-1.map').in('tmp');
+
+      copySync('fixtures/typescript/2/hello-world.js', 'tmp/hello-world.js');
+      copySync('fixtures/typescript/2/hello-world.ts', 'tmp/hello-world.ts');
       return runOnce();
     }).then(function() {
       expectFile('hello-world-output.js').in('tmp');
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-2.map');
-      expectFile('hello-world-output-2.map').in('tmp');
+      expectValidSourcemap('hello-world-output.js', 'hello-world-output-2.map').in('tmp');
     });
   });
 

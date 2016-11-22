@@ -1,0 +1,4 @@
+export function helloWorld(string) {
+    console.log(string);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaGVsbG8td29ybGQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJoZWxsby13b3JsZC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwyQkFBMkIsTUFBYztJQUV2QyxPQUFPLENBQUMsR0FBRyxDQUFDLE1BQU0sQ0FBQyxDQUFDO0FBQ3RCLENBQUMifQ==

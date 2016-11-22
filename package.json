@@ -29,6 +29,6 @@
     "mocha-jshint": "0.0.9",
     "rimraf": "^2.2.8",
     "sinon": "^1.12.2",
-    "sourcemap-validator": "^1.0.4"
+    "sourcemap-validator": "^1.0.5"
   }
 }
