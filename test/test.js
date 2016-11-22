@@ -319,13 +319,15 @@ describe('fast sourcemap concat', function() {
       return s.end();
     }
 
-    copySync('fixtures/typescript/hello-world-1.js', 'tmp/hello-world.js');
+    copySync('fixtures/typescript/1/hello-world.js', 'tmp/hello-world.js');
+    copySync('fixtures/typescript/1/hello-world.ts', 'tmp/hello-world.ts');
     return runOnce().then(function(){
       expectFile('hello-world-output.js').in('tmp');
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-1.map');
       expectFile('hello-world-output-1.map').in('tmp');
 
-      copySync('fixtures/typescript/hello-world-2.js', 'tmp/hello-world.js');
+      copySync('fixtures/typescript/2/hello-world.js', 'tmp/hello-world.js');
+      copySync('fixtures/typescript/2/hello-world.ts', 'tmp/hello-world.ts');
       return runOnce();
     }).then(function() {
       expectFile('hello-world-output.js').in('tmp');
