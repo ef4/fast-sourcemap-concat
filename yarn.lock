@@ -199,6 +199,19 @@ has-ansi@^0.1.0:
   dependencies:
     ansi-regex "^0.2.0"
 
+heimdalljs-logger:
+  version "0.1.7"
+  resolved "https://registry.npmjs.org/heimdalljs-logger/-/heimdalljs-logger-0.1.7.tgz#10e340af5c22a811e34522d9b9397675ad589ca4"
+  dependencies:
+    debug "^2.2.0"
+    heimdalljs "^0.2.0"
+
+heimdalljs@^0.2.0:
+  version "0.2.3"
+  resolved "https://registry.npmjs.org/heimdalljs/-/heimdalljs-0.2.3.tgz#35b82a6a4d73541fc4fb88d2fe2b23608fb4f779"
+  dependencies:
+    rsvp "~3.2.1"
+
 htmlparser2@3.8.x:
   version "3.8.3"
   resolved "https://registry.npmjs.org/htmlparser2/-/htmlparser2-3.8.3.tgz#996c28b191516a8be86501a7d79757e5c70c1068"
@@ -562,6 +575,10 @@ rimraf@^2.2.8:
 rsvp@^3.0.14:
   version "3.3.3"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-3.3.3.tgz#34633caaf8bc66ceff4be3c2e1dffd032538a813"
+
+rsvp@~3.2.1:
+  version "3.2.1"
+  resolved "https://registry.npmjs.org/rsvp/-/rsvp-3.2.1.tgz#07cb4a5df25add9e826ebc67dcc9fd89db27d84a"
 
 samsam@~1.1:
   version "1.1.3"
