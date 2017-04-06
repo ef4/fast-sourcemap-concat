@@ -53,7 +53,7 @@ describe('fast sourcemap concat', function() {
     
     return s.end().then(function(){
       expectFile('bogus.map').in('tmp');
-    }
+    });
   });
 
   it("should support file-less concatenation", function() {
