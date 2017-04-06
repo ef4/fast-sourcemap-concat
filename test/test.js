@@ -49,9 +49,12 @@ describe('fast sourcemap concat', function() {
   
   it("should not crash if a file is not found", function() {
     var s = new SourceMap({outputFile: 'tmp/bogus.js'});
+    var filler = "'x';";
+    s.addSpace(filler);
     s.addFile('this_is_a_totally_bogus_file_name.js');
     
     return s.end().then(function(){
+      expectFile('bogus.js').in('tmp');
       expectFile('bogus.map').in('tmp');
     });
   });
