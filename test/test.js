@@ -46,6 +46,15 @@ describe('fast sourcemap concat', function() {
       expectFile('final.map').in('tmp');
     });
   });
+  
+  it("should not crash if a file is not found", function() {
+    var s = new SourceMap({outputFile: 'tmp/bogus.js'});
+    s.addFile('this_is_a_totally_bogus_file_name.js');
+    
+    return s.end().then(function(){
+      expectFile('bogus.map').in('tmp');
+    }
+  });
 
   it("should support file-less concatenation", function() {
     var s = new SourceMap({file: 'from-inline.js', mapURL: 'from-inline.map'});
