@@ -1,4 +1,4 @@
-Fast Source Map Concatenation 
+Fast Source Map Concatenation
 -----------------------------
 
 [![Build Status](https://travis-ci.org/ef4/fast-sourcemap-concat.svg?branch=master)](https://travis-ci.org/ef4/fast-sourcemap-concat)
@@ -15,7 +15,7 @@ source-map dependency
 
 We depend on mozilla's source-map library, but only to use their
 base64-vlq implementation, which is in turn based on the version in
-the Closure Compiler. 
+the Closure Compiler.
 
 We can concatenate much faster than source-map because we are
 specifically optimized for line-by-line concatenation.
