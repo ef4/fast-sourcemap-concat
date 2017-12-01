@@ -27,7 +27,6 @@
     "chai": "^1.10.0",
     "mocha": "^2.0.1",
     "mocha-eslint": "^4.1.0",
-    "mocha-jshint": "0.0.9",
     "rimraf": "^2.2.8",
     "sinon": "^1.12.2"
   },
