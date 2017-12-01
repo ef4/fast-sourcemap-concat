@@ -1,4 +1,3 @@
-/* global describe, beforeEach, afterEach, it */
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 var SourceMap = require('..');
@@ -434,7 +433,7 @@ function expectValidSourcemap(jsFilename, mapFilename) {
         subdir = '.';
       }
 
-      if (!mapFilename) {;
+      if (!mapFilename) {
         mapFilename = jsFilename.replace(/\.js$/, '.map');
       }
 
