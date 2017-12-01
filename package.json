@@ -30,5 +30,8 @@
     "mocha-jshint": "0.0.9",
     "rimraf": "^2.2.8",
     "sinon": "^1.12.2"
+  },
+  "engines": {
+    "node": ">= 4"
   }
 }
