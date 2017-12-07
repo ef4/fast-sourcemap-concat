@@ -13,6 +13,8 @@ module.exports = {
   },
   rules: {
     'no-console': 'off',
+
+    'no-var': 'error',
   },
   overrides: [{
     // test files

@@ -1,16 +1,18 @@
-var assert = require('chai').assert;
-var expect = require('chai').expect;
-var SourceMap = require('..');
-var mkdirp = require('mkdirp');
-var fs = require('fs');
-var path = require('path');
-var rimraf = require('rimraf');
-var sinon = require('sinon');
-var EOL = require('os').EOL;
-var validateSourcemap = require('sourcemap-validator');
+'use strict';
+
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+const SourceMap = require('..');
+const mkdirp = require('mkdirp');
+const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
+const sinon = require('sinon');
+const EOL = require('os').EOL;
+const validateSourcemap = require('sourcemap-validator');
 
 describe('fast sourcemap concat', function() {
-  var initialCwd;
+  let initialCwd;
 
   beforeEach(function() {
     initialCwd = process.cwd();
@@ -23,9 +25,9 @@ describe('fast sourcemap concat', function() {
   });
 
   it('should pass basic smoke test', function() {
-    var s = new SourceMap({outputFile: 'tmp/intermediate.js'});
+    let s = new SourceMap({outputFile: 'tmp/intermediate.js'});
     s.addFile('fixtures/inner/first.js');
-    var filler = "'x';";
+    let filler = "'x';";
     s.addSpace(filler);
     s.addFile('fixtures/inner/second.js');
 
@@ -46,7 +48,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should support file-less concatenation", function() {
-    var s = new SourceMap({file: 'from-inline.js', mapURL: 'from-inline.map'});
+    let s = new SourceMap({file: 'from-inline.js', mapURL: 'from-inline.map'});
     s.addFile('fixtures/other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFile('fixtures/inline-mapped.js');
@@ -61,7 +63,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should accept inline sourcemaps", function() {
-    var s = new SourceMap({outputFile: 'tmp/from-inline.js'});
+    let s = new SourceMap({outputFile: 'tmp/from-inline.js'});
     s.addFile('fixtures/other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFile('fixtures/inline-mapped.js');
@@ -74,10 +76,10 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should allow adding file contents from string", function() {
-    var filePath = 'fixtures/other/third.js';
-    var contents = fs.readFileSync(filePath, { encoding: 'utf8' });
+    let filePath = 'fixtures/other/third.js';
+    let contents = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-    var s = new SourceMap({outputFile: 'tmp/from-inline.js'});
+    let s = new SourceMap({outputFile: 'tmp/from-inline.js'});
     s.addFileSource('fixtures/other/third.js', contents);
     s.addSpace("/* My First Separator */");
     s.addFile('fixtures/inline-mapped.js');
@@ -91,11 +93,11 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should allow adding map contents from string", function() {
-    var filePath = 'fixtures/from-string/external-mapped.js';
-    var contents = fs.readFileSync(filePath, { encoding: 'utf8' });
-    var map = fs.readFileSync(filePath+'-map.map', { encoding: 'utf8' });
+    let filePath = 'fixtures/from-string/external-mapped.js';
+    let contents = fs.readFileSync(filePath, { encoding: 'utf8' });
+    let map = fs.readFileSync(filePath+'-map.map', { encoding: 'utf8' });
 
-    var s = new SourceMap({outputFile: 'tmp/from-string.js'});
+    let s = new SourceMap({outputFile: 'tmp/from-string.js'});
     s.addFile('fixtures/other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFileSource('fixtures/external-mapped.js', contents, map);
@@ -109,7 +111,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should correctly concatenate a sourcemapped coffeescript example", function() {
-    var s = new SourceMap({outputFile: 'tmp/coffee-example.js'});
+    let s = new SourceMap({outputFile: 'tmp/coffee-example.js'});
     s.addFile('fixtures/coffee/aa-loader.js');
     s.addFile('fixtures/coffee/rewriter.js');
     s.addSpace("/* My First Separator */");
@@ -121,7 +123,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should discover external sources", function() {
-    var s = new SourceMap({outputFile: 'tmp/external-content.js', baseDir: path.join(__dirname, 'fixtures')});
+    let s = new SourceMap({outputFile: 'tmp/external-content.js', baseDir: path.join(__dirname, 'fixtures')});
     s.addFile('other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFile('external-content/all-inner.js');
@@ -134,8 +136,8 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should populate cache", function() {
-    var cache = {};
-    var s = new SourceMap({outputFile: 'tmp/external-content.js', baseDir: path.join(__dirname, 'fixtures'), cache: cache});
+    let cache = {};
+    let s = new SourceMap({outputFile: 'tmp/external-content.js', baseDir: path.join(__dirname, 'fixtures'), cache: cache});
     s.addFile('other/third.js');
     s.addSpace("/* My First Separator */");
     s.addFile('external-content/all-inner.js');
@@ -151,12 +153,12 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should use cache", function() {
-    var cache = {};
+    let cache = {};
 
     function once(finalFile){
-      var s = new SourceMap({cache: cache, outputFile: 'tmp/intermediate.js'});
+      let s = new SourceMap({cache: cache, outputFile: 'tmp/intermediate.js'});
       s.addFile('fixtures/inner/first.js');
-      var filler = "'x';";
+      let filler = "'x';";
       s.addSpace(filler);
       s.addFile('fixtures/inner/second.js');
 
@@ -187,7 +189,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("supports mapFile & mapURL", function() {
-    var s = new SourceMap({mapFile: 'tmp/maps/custom.map', mapURL: '/maps/custom.map', outputFile: 'tmp/assets/mapdird.js'});
+    let s = new SourceMap({mapFile: 'tmp/maps/custom.map', mapURL: '/maps/custom.map', outputFile: 'tmp/assets/mapdird.js'});
     s.addFile('fixtures/inner/first.js');
     return s.end().then(function(){
       expectFile('mapdird.js').in('tmp/assets');
@@ -202,17 +204,17 @@ describe('fast sourcemap concat', function() {
   });
 
   it("outputs block comments when 'mapCommentType' is 'block'", function() {
-    var FILE = 'tmp/mapcommenttype.css';
-    var s = new SourceMap({outputFile: FILE, mapCommentType: 'block'});
+    let FILE = 'tmp/mapcommenttype.css';
+    let s = new SourceMap({outputFile: FILE, mapCommentType: 'block'});
     return s.end().then(function() {
-      var result = fs.readFileSync(FILE, 'utf-8');
-      var expected = "/*# sourceMappingURL=mapcommenttype.css.map */\n";
+      let result = fs.readFileSync(FILE, 'utf-8');
+      let expected = "/*# sourceMappingURL=mapcommenttype.css.map */\n";
       assert.equal(result, expected);
     });
   });
 
   it("should warn but tolerate broken sourcemap URL", function() {
-    var s = new SourceMap({outputFile: 'tmp/with-broken-input-map.js', baseDir: path.join(__dirname, 'fixtures')});
+    let s = new SourceMap({outputFile: 'tmp/with-broken-input-map.js', baseDir: path.join(__dirname, 'fixtures')});
     s._warn = sinon.spy();
     s.addFile('other/third.js');
     s.addSpace("/* My First Separator */");
@@ -227,7 +229,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("corrects upstream sourcemap that is too short", function() {
-    var s = new SourceMap({outputFile: 'tmp/test-short.js'});
+    let s = new SourceMap({outputFile: 'tmp/test-short.js'});
     s.addFile('fixtures/other/third.js');
     s.addFile('fixtures/short/rewriter.js');
     s.addFile('fixtures/other/fourth.js');
@@ -238,9 +240,9 @@ describe('fast sourcemap concat', function() {
   });
 
   it("corrects upstream sourcemap that is too short, on cached second build", function() {
-    var cache = {};
+    let cache = {};
     function once() {
-      var s = new SourceMap({cache: cache, outputFile: 'tmp/test-short.js'});
+      let s = new SourceMap({cache: cache, outputFile: 'tmp/test-short.js'});
       s.addFile('fixtures/other/third.js');
       s.addFile('fixtures/short/rewriter.js');
       s.addFile('fixtures/other/fourth.js');
@@ -253,7 +255,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("absorbs broken (sprintf)", function() {
-    var s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
+    let s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
 
     s.addFile('fixtures/sprintf/sprintf.min.js');
 
@@ -264,7 +266,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("deals with missing newline followed by single newline", function() {
-    var s = new SourceMap({outputFile: 'tmp/iife-wrapping.js'});
+    let s = new SourceMap({outputFile: 'tmp/iife-wrapping.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addSpace('\n');
     s.addFile('fixtures/iife-wrapping/iife-start');
@@ -280,7 +282,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should tolerate sourceMaps that do not specify sourcesContent", function() {
-    var s = new SourceMap({outputFile: 'tmp/no-sources-content-out.js'});
+    let s = new SourceMap({outputFile: 'tmp/no-sources-content-out.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addFile('fixtures/emptyish/src/b.js');
     s.addFile('fixtures/other/third.js');
@@ -290,7 +292,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should discard invalid sourcemaps with more sources than sourcesContent", function() {
-    var s = new SourceMap({outputFile: 'tmp/too-many-sources-out.js'});
+    let s = new SourceMap({outputFile: 'tmp/too-many-sources-out.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addFile('fixtures/emptyish/too-many-sources.js');
     s.addFile('fixtures/other/third.js');
@@ -300,7 +302,7 @@ describe('fast sourcemap concat', function() {
   });
 
   it("should discard invalid sourcemaps with more sourcesContent than sources", function() {
-    var s = new SourceMap({outputFile: 'tmp/too-few-sources-out.js'});
+    let s = new SourceMap({outputFile: 'tmp/too-few-sources-out.js'});
     s.addFile('fixtures/other/fourth.js');
     s.addFile('fixtures/emptyish/too-few-sources.js');
     s.addFile('fixtures/other/third.js');
@@ -314,10 +316,10 @@ describe('fast sourcemap concat', function() {
     // their original source code, which therefore gets preprocessed
     // into identical output that has a different sourceMap.
 
-    var cache = {};
+    let cache = {};
 
     function runOnce() {
-      var s = new SourceMap({outputFile: 'tmp/hello-world-output.js', cache: cache});
+      let s = new SourceMap({outputFile: 'tmp/hello-world-output.js', cache: cache});
       s.addFile('fixtures/inner/first.js');
       s.addFile('tmp/hello-world.js');
       s.addFile('fixtures/inner/second.js');
@@ -343,8 +345,8 @@ describe('fast sourcemap concat', function() {
   });
 
   describe('CONCAT_STATS', function() {
-    var outputs;
-    var concat;
+    let outputs;
+    let concat;
 
     beforeEach(function() {
       process.env.CONCAT_STATS = true;
@@ -376,7 +378,7 @@ describe('fast sourcemap concat', function() {
       return concat.end().then(function() {
         expect(outputs.length).to.eql(1);
 
-        var outputPath = process.cwd() + '/concat-stats-for/' + concat.id + '-' + path.basename(concat.outputFile) + '.json';
+        let outputPath = process.cwd() + '/concat-stats-for/' + concat.id + '-' + path.basename(concat.outputFile) + '.json';
         expect(outputs[0].outputPath).to.eql(outputPath);
         expect(outputs[0].content).to.eql({
           outputFile: concat.outputFile,
@@ -404,13 +406,13 @@ describe('fast sourcemap concat', function() {
 });
 
 function expectFile(filename, actualContent) {
-  var stripURL = false;
+  let stripURL = false;
   return {
     in: function(dir) {
       actualContent = actualContent || ensurePosix(fs.readFileSync(path.join(dir, filename), 'utf-8'));
       fs.writeFileSync(path.join(__dirname, 'actual', filename), actualContent);
 
-      var expectedContent;
+      let expectedContent;
       try {
         expectedContent = ensurePosix(fs.readFileSync(path.join(__dirname, 'expected', filename), 'utf-8'));
         if (stripURL) {
@@ -440,8 +442,8 @@ function expectValidSourcemap(jsFilename, mapFilename) {
       expectFile(jsFilename).in(result, subdir);
       expectFile(mapFilename).in(result, subdir);
 
-      var actualMin = fs.readFileSync(path.join(result, subdir, jsFilename), 'utf-8');
-      var actualMap = fs.readFileSync(path.join(result, subdir, mapFilename), 'utf-8');
+      let actualMin = fs.readFileSync(path.join(result, subdir, jsFilename), 'utf-8');
+      let actualMap = fs.readFileSync(path.join(result, subdir, mapFilename), 'utf-8');
 
       validateSourcemap(actualMin, actualMap, {});
     }
