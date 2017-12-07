@@ -2,8 +2,6 @@
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 var SourceMap = require('..');
-var RSVP = require('rsvp');
-RSVP.on('error', function(err){throw err;});
 var mkdirp = require('mkdirp');
 var fs = require('fs');
 var path = require('path');
