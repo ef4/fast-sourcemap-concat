@@ -14,7 +14,7 @@
   "author": "Edward Faulkner <ef@alum.mit.edu>",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^0.5.1",
+    "chalk": "^2.0.0",
     "fs-extra": "^0.30.0",
     "heimdalljs-logger": "^0.1.7",
     "memory-streams": "^0.1.0",
