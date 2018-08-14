@@ -367,18 +367,18 @@ describe('fast sourcemap concat', function() {
 
     afterEach(function() {
       delete process.env.CONCAT_STATS;
+      delete process.env.CONCAT_STATS_PATH;
     });
-
-    it('correctly emits file for given concat', function() {
+    
+    let runEmitTest = (outputPath) => {
       concat.addFile('fixtures/inner/second.js');
       concat.addFile('fixtures/inner/first.js');
-
+  
       expect(outputs.length).to.eql(0);
-
+  
       return concat.end().then(function() {
         expect(outputs.length).to.eql(1);
-
-        let outputPath = process.cwd() + '/concat-stats-for/' + concat.id + '-' + path.basename(concat.outputFile) + '.json';
+  
         expect(outputs[0].outputPath).to.eql(outputPath);
         expect(outputs[0].content).to.eql({
           outputFile: concat.outputFile,
@@ -388,6 +388,16 @@ describe('fast sourcemap concat', function() {
           }
         });
       });
+    };
+
+    it('correctly emits file for given concat with default path', function() {
+      return runEmitTest(`${process.cwd()}/concat-stats-for/${concat.id}-${path.basename(concat.outputFile)}.json`);
+    });
+
+    it('correctly emits file for given concat with path from env', function() {
+      let statsPath = '/tmp/concat-stats-for';
+      process.env.CONCAT_STATS_PATH = statsPath;
+      return runEmitTest(`${statsPath}/${concat.id}-${path.basename(concat.outputFile)}.json`);
     });
 
     it('correctly DOES NOT emits file for given concat, if the flag is not set', function() {
