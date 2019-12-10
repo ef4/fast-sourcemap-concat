@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha --inline-diffs",
-    "test:debug": "mocha --no-timeouts debug"
+    "test:debug": "mocha --no-timeouts --inspect"
   },
   "files": [
     "lib"
@@ -31,6 +31,6 @@
     "sinon": "^1.12.2"
   },
   "engines": {
-    "node": ">= 4"
+    "node": "10.* || >= 12.*"
   }
 }
