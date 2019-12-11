@@ -10,6 +10,11 @@ const rimraf = require('rimraf');
 const sinon = require('sinon');
 const EOL = require('os').EOL;
 const validateSourcemap = require('sourcemap-validator');
+const FSMerger = require('fs-merger');
+
+function createFS(rootPath = './') {
+  return new FSMerger(rootPath).fs;
+}
 
 describe('fast sourcemap concat', function() {
   let initialCwd;
@@ -344,6 +349,31 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  describe('with custom fs', function() {
+    it('should pass basic smoke test', function() {
+      let s = new SourceMap({outputFile: 'tmp/intermediate.js', fs:createFS()});
+      s.addFile('fixtures/inner/first.js');
+      let filler = "'x';";
+      s.addSpace(filler);
+      s.addFile('fixtures/inner/second.js');
+
+      return s.end().then(function(){
+        s = new SourceMap({outputFile: 'tmp/intermediate2.js', fs:createFS()});
+        s.addFile('fixtures/other/fourth.js');
+        return s.end();
+      }).then(function(){
+        s = new SourceMap({outputFile: 'tmp/final.js', fs:createFS()});
+        s.addFile('tmp/intermediate.js');
+        s.addFile('fixtures/other/third.js');
+        s.addFile('tmp/intermediate2.js');
+        return s.end();
+      }).then(function(){
+        expectFile('final.js').in('tmp');
+        expectFile('final.map').in('tmp');
+      });
+    });
+  });
+
   describe('CONCAT_STATS', function() {
     let outputs;
     let concat;
@@ -369,16 +399,16 @@ describe('fast sourcemap concat', function() {
       delete process.env.CONCAT_STATS;
       delete process.env.CONCAT_STATS_PATH;
     });
-    
+
     let runEmitTest = (outputPath) => {
       concat.addFile('fixtures/inner/second.js');
       concat.addFile('fixtures/inner/first.js');
-  
+
       expect(outputs.length).to.eql(0);
-  
+
       return concat.end().then(function() {
         expect(outputs.length).to.eql(1);
-  
+
         expect(outputs[0].outputPath).to.eql(outputPath);
         expect(outputs[0].content).to.eql({
           outputFile: concat.outputFile,
