@@ -57,7 +57,7 @@ If no value is given, or a falsey value is given, will default to `'line'`.
 
 Type: `string`
 
-Filename for the concatenated sourcemap.
+Filename where the concatenated sourcemap will be written.
 
 If no value is given, will default to the value of `outputFile`, but with `'.js'` replaced by `'.map'`.
 
@@ -73,7 +73,7 @@ If no value is given, will default to the basename of `mapFile`.
 
 Type: `string`
 
-Filename for the concatenated sourcemap.
+Filename where the concatenated source code will be written.
 
 If you don't specify this you must specify `mapURL` and `file`.
 
