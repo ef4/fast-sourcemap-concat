@@ -61,6 +61,18 @@ Filename where the concatenated sourcemap will be written.
 
 If no value is given, will default to the value of `outputFile`, but with `'.js'` replaced by `'.map'`.
 
+### `mapStyle`
+
+Type: `string`
+
+If `'data'` is specified, `sourceMappingURL` will contain a data URL instead of `mapURL`.
+
+If `'file'` is specified, `sourceMappingURL` will contain `mapURL`.
+
+If anything else truthy is specified, the behavior is undefined.
+
+If no value is given, or a falsey value is given, will default to `'file'`.
+
 ### `mapURL`
 
 Type: `string`
