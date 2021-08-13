@@ -1,7 +1,13 @@
 'use strict';
 
-const assert = require('chai').assert;
-const expect = require('chai').expect;
+const chai = require('chai');
+const chaiFiles = require('chai-files');
+chai.use(chaiFiles);
+
+const assert = chai.assert;
+const expect = chai.expect;
+const file = chaiFiles.file;
+
 const SourceMap = require('..');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
@@ -347,6 +353,35 @@ describe('fast sourcemap concat', function() {
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-2.map');
       expectValidSourcemap('hello-world-output.js', 'hello-world-output-2.map').in('tmp');
     });
+  });
+
+  it('should write data URLs when requested via mapStyle', function () {
+    const s = new SourceMap({
+      mapStyle: 'data',
+      outputFile: 'tmp/map-style-data-test.js'
+    });
+
+    s.addFile('fixtures/inner/first.js');
+    s.addFile('fixtures/inner/second.js');
+
+    return s.end().then(function () {
+      expect(file('tmp/map-style-data-test.js')).to.exist;
+      expect(file('tmp/map-style-data-test.map')).to.not.exist;
+      expect(file('tmp/map-style-data-test.js')).to.contain('sourceMappingURL=data:application');
+      expect(file('tmp/map-style-data-test.js')).to.not.contain('sourceMappingURL=map-style-data-test.map');
+    });
+  });
+
+  it('should not allow mapStyle to be used with custom mapFiles', function () {
+    const badUsage = function () {
+      new SourceMap({
+        mapStyle: 'data',
+        mapFile: 'foo.map',
+        mapURL: 'foo.map',
+        outputFile: 'tmp/map-style-throw-test.js'
+      });
+    }
+    expect(badUsage).to.throw('mapStyle');
   });
 
   describe('with custom fs', function() {
