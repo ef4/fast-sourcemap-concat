@@ -23,9 +23,9 @@ If no value is given, will default to the current working directory.
 
 ### `cache`
 
-Type: `???`
+Type: `Object`
 
-???
+(Optional) Used to cache encoder results. Passing this in from the outside allows for many instances of the plugin to share one cache.
 
 ### `file`
 
