@@ -33,9 +33,13 @@ if (map.sourcesContent) {
   });
 } else {
   splitContents = map.sources.map(function (name) {
-    return fs
-      .readFileSync(path.join(path.dirname(process.argv[2]), name), "utf-8")
-      .split(newline);
+    try {
+      return fs
+        .readFileSync(path.resolve(process.argv[2], name), "utf-8")
+        .split(newline);
+    } catch (err) {
+      return `failed to load ${path.resolve(process.argv[2], name)}`;
+    }
   });
 }
 var decoder = new Coder();
