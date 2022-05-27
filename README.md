@@ -104,9 +104,13 @@ The value assigned to the sourcemap's `"sourceRoot"` key, as described in the [s
 source-map dependency
 ---------------------
 
-We depend on mozilla's source-map library, but only to use their
-base64-vlq implementation, which is in turn based on the version in
-the Closure Compiler.
+We depend on ([a fork of](https://github.com/jacobq/source-map))
+mozilla's [`source-map`](https://github.com/mozilla/source-map) library,
+but only to use their base64-vlq implementation,
+which is in turn based on the version in the Closure Compiler.
+(The fork restores the vlq `decode` functionality, which `source-map`
+considers as private API and removed in v0.5.0, and is compatible
+with node 18.x, which `source-map` < 0.8.0-beta.0 was not.)
 
 We can concatenate much faster than source-map because we are
 specifically optimized for line-by-line concatenation.
