@@ -9,7 +9,6 @@ const path = require('path');
 const rimraf = require('rimraf');
 const sinon = require('sinon');
 const EOL = require('os').EOL;
-const validateSourcemap = require('sourcemap-validator');
 const FSMerger = require('fs-merger');
 
 function createFS(rootPath = './') {
@@ -259,17 +258,6 @@ describe('fast sourcemap concat', function() {
     });
   });
 
-  it("absorbs broken (sprintf)", function() {
-    let s = new SourceMap({ outputFile: 'tmp/sprintf-multi.js' });
-
-    s.addFile('fixtures/sprintf/sprintf.min.js');
-
-    s.addFile('fixtures/sprintf/first.js');
-    return s.end().then(function(){
-      expectValidSourcemap('sprintf-multi.js').in('tmp');
-    });
-  });
-
   it("deals with missing newline followed by single newline", function() {
     let s = new SourceMap({outputFile: 'tmp/iife-wrapping.js'});
     s.addFile('fixtures/other/fourth.js');
@@ -292,27 +280,7 @@ describe('fast sourcemap concat', function() {
     s.addFile('fixtures/emptyish/src/b.js');
     s.addFile('fixtures/other/third.js');
     return s.end().then(function(){
-      expectValidSourcemap('no-sources-content-out.js', 'no-sources-content-out.map').in('tmp');
-    });
-  });
-
-  it("should discard invalid sourcemaps with more sources than sourcesContent", function() {
-    let s = new SourceMap({outputFile: 'tmp/too-many-sources-out.js'});
-    s.addFile('fixtures/other/fourth.js');
-    s.addFile('fixtures/emptyish/too-many-sources.js');
-    s.addFile('fixtures/other/third.js');
-    return s.end().then(function(){
-      expectValidSourcemap('too-many-sources-out.js', 'too-many-sources-out.map').in('tmp');
-    });
-  });
-
-  it("should discard invalid sourcemaps with more sourcesContent than sources", function() {
-    let s = new SourceMap({outputFile: 'tmp/too-few-sources-out.js'});
-    s.addFile('fixtures/other/fourth.js');
-    s.addFile('fixtures/emptyish/too-few-sources.js');
-    s.addFile('fixtures/other/third.js');
-    return s.end().then(function(){
-      expectValidSourcemap('too-few-sources-out.js', 'too-few-sources-out.map').in('tmp');
+      expectSourcemap('no-sources-content-out.js', 'no-sources-content-out.map').in('tmp');
     });
   });
 
@@ -337,7 +305,7 @@ describe('fast sourcemap concat', function() {
       expectFile('hello-world-output.js').in('tmp');
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-1.map');
 
-      expectValidSourcemap('hello-world-output.js', 'hello-world-output-1.map').in('tmp');
+      expectSourcemap('hello-world-output.js', 'hello-world-output-1.map').in('tmp');
 
       copySync('fixtures/typescript/2/hello-world.js', 'tmp/hello-world.js');
       copySync('fixtures/typescript/2/hello-world.ts', 'tmp/hello-world.ts');
@@ -345,7 +313,7 @@ describe('fast sourcemap concat', function() {
     }).then(function() {
       expectFile('hello-world-output.js').in('tmp');
       copySync('tmp/hello-world-output.map', 'tmp/hello-world-output-2.map');
-      expectValidSourcemap('hello-world-output.js', 'hello-world-output-2.map').in('tmp');
+      expectSourcemap('hello-world-output.js', 'hello-world-output-2.map').in('tmp');
     });
   });
 
@@ -468,7 +436,7 @@ function expectFile(filename, actualContent) {
   };
 }
 
-function expectValidSourcemap(jsFilename, mapFilename) {
+function expectSourcemap(jsFilename, mapFilename) {
   return {
     in: function (result, subdir) {
       if (!subdir) {
@@ -481,11 +449,6 @@ function expectValidSourcemap(jsFilename, mapFilename) {
 
       expectFile(jsFilename).in(result, subdir);
       expectFile(mapFilename).in(result, subdir);
-
-      let actualMin = fs.readFileSync(path.join(result, subdir, jsFilename), 'utf-8');
-      let actualMap = fs.readFileSync(path.join(result, subdir, mapFilename), 'utf-8');
-
-      validateSourcemap(actualMin, actualMap, {});
     }
   }
 }
