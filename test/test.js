@@ -224,6 +224,16 @@ describe('fast sourcemap concat', function() {
     });
   });
 
+  it("outputs no comments when 'mapCommentType' is 'hidden'", function() {
+    let FILE = 'tmp/mapcommenttype.css';
+    let s = new SourceMap({outputFile: FILE, mapCommentType: 'hidden'});
+    return s.end().then(function() {
+      let result = fs.readFileSync(FILE, 'utf-8');
+      let expected = "";
+      assert.equal(result, expected);
+    });
+  });
+
   it("should warn but tolerate broken sourcemap URL", function() {
     let s = new SourceMap({outputFile: 'tmp/with-broken-input-map.js', baseDir: path.join(__dirname, 'fixtures')});
     s._warn = sinon.spy();

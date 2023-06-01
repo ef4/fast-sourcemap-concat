@@ -49,6 +49,8 @@ Type: `string`
 
 If `'line'` is specified, `sourceMappingURL` will be written in a single-line comment (`//`).
 
+If `'hidden'` is specified, `sourceMappingURL` will not be written to support hidden sourcemaps.
+
 If anything else truthy is specified, `sourceMappingURL` will be written in a block comment (`/* */`).
 
 If no value is given, or a falsey value is given, will default to `'line'`.
