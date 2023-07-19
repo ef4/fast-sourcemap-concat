@@ -51,11 +51,6 @@ ajv@^5.2.3, ajv@^5.3.0:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
 
-amdefine@>=0.0.4:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/amdefine/-/amdefine-1.0.1.tgz"
-  integrity sha512-S2Hw0TtNkMJhIabBwIojKL9YHO5T0n5eNqWJ7Lrlel/zDbftQpxpapi8tZs3X1HWa+u+QeydGmzzNU0m09+Rcg==
-
 ansi-escapes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-3.0.0.tgz"
@@ -747,11 +742,6 @@ js-yaml@^3.9.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-jsesc@~0.3.x:
-  version "0.3.0"
-  resolved "https://registry.npmjs.org/jsesc/-/jsesc-0.3.0.tgz"
-  integrity sha1-G/XuY7RTn+LibQwemcJAuXpFeXI=
-
 json-schema-traverse@^0.3.0:
   version "0.3.1"
   resolved "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-0.3.1.tgz"
@@ -776,222 +766,6 @@ levn@^0.3.0, levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-lodash._basebind@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._basebind/-/lodash._basebind-2.3.0.tgz"
-  integrity sha1-K1vEUqDhBhQ7IYafIzvbWHQX0kg=
-  dependencies:
-    lodash._basecreate "~2.3.0"
-    lodash._setbinddata "~2.3.0"
-    lodash.isobject "~2.3.0"
-
-lodash._basecreate@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._basecreate/-/lodash._basecreate-2.3.0.tgz"
-  integrity sha1-m4ioak3P97fzxh2Dovz8BnHsneA=
-  dependencies:
-    lodash._renative "~2.3.0"
-    lodash.isobject "~2.3.0"
-    lodash.noop "~2.3.0"
-
-lodash._basecreatecallback@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._basecreatecallback/-/lodash._basecreatecallback-2.3.0.tgz"
-  integrity sha1-N7KrF1kaM56YjbMln81GAZ16w2I=
-  dependencies:
-    lodash._setbinddata "~2.3.0"
-    lodash.bind "~2.3.0"
-    lodash.identity "~2.3.0"
-    lodash.support "~2.3.0"
-
-lodash._basecreatewrapper@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._basecreatewrapper/-/lodash._basecreatewrapper-2.3.0.tgz"
-  integrity sha1-qgxhrZYETDkzN2ExSDqXWcNlEkc=
-  dependencies:
-    lodash._basecreate "~2.3.0"
-    lodash._setbinddata "~2.3.0"
-    lodash._slice "~2.3.0"
-    lodash.isobject "~2.3.0"
-
-lodash._createwrapper@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._createwrapper/-/lodash._createwrapper-2.3.0.tgz"
-  integrity sha1-0arhEC2t9EDo4G/BM6bt1/4UYHU=
-  dependencies:
-    lodash._basebind "~2.3.0"
-    lodash._basecreatewrapper "~2.3.0"
-    lodash.isfunction "~2.3.0"
-
-lodash._escapehtmlchar@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._escapehtmlchar/-/lodash._escapehtmlchar-2.3.0.tgz"
-  integrity sha1-0D2mvYLu3zjcCltQPXQOzQ6JRZI=
-  dependencies:
-    lodash._htmlescapes "~2.3.0"
-
-lodash._escapestringchar@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._escapestringchar/-/lodash._escapestringchar-2.3.0.tgz"
-  integrity sha1-zOc65g/G2lXSv4oGecI8orqxSfw=
-
-lodash._htmlescapes@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._htmlescapes/-/lodash._htmlescapes-2.3.0.tgz"
-  integrity sha1-HKmIY8rfH6HYLITzXzHkBVagTzo=
-
-lodash._objecttypes@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._objecttypes/-/lodash._objecttypes-2.3.0.tgz"
-  integrity sha1-aj6jmH3W7rgCGy1cnDA1Scwrrh4=
-
-lodash._reinterpolate@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._reinterpolate/-/lodash._reinterpolate-2.3.0.tgz"
-  integrity sha1-A+6dhcDlXL1ZDXFgiilb3aURKOw=
-
-lodash._renative@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._renative/-/lodash._renative-2.3.0.tgz"
-  integrity sha1-d9jt1M7SbdWXH54Vpfdy5OMX+9M=
-
-lodash._reunescapedhtml@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._reunescapedhtml/-/lodash._reunescapedhtml-2.3.0.tgz"
-  integrity sha1-25ILVax/P/glk5rOubosIxcT0k0=
-  dependencies:
-    lodash._htmlescapes "~2.3.0"
-    lodash.keys "~2.3.0"
-
-lodash._setbinddata@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._setbinddata/-/lodash._setbinddata-2.3.0.tgz"
-  integrity sha1-5WEEkKzRMnfVmFjZW18nJ/FQjwQ=
-  dependencies:
-    lodash._renative "~2.3.0"
-    lodash.noop "~2.3.0"
-
-lodash._shimkeys@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._shimkeys/-/lodash._shimkeys-2.3.0.tgz"
-  integrity sha1-YR+TFJ4+bHIQlrSHae8pU3rai6k=
-  dependencies:
-    lodash._objecttypes "~2.3.0"
-
-lodash._slice@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash._slice/-/lodash._slice-2.3.0.tgz"
-  integrity sha1-FHGYEyhZly5GgMoppZkshVZpqlw=
-
-lodash.bind@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.bind/-/lodash.bind-2.3.0.tgz"
-  integrity sha1-wqjhi2jl7MFS4rFoJmEW/qWwFsw=
-  dependencies:
-    lodash._createwrapper "~2.3.0"
-    lodash._renative "~2.3.0"
-    lodash._slice "~2.3.0"
-
-lodash.defaults@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.defaults/-/lodash.defaults-2.3.0.tgz"
-  integrity sha1-qDKwAfE487uXIcKBmip8xa4h7SU=
-  dependencies:
-    lodash._objecttypes "~2.3.0"
-    lodash.keys "~2.3.0"
-
-lodash.escape@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.escape/-/lodash.escape-2.3.0.tgz"
-  integrity sha1-hEw4xY+EThNi6+lnJhWbYs9fKlg=
-  dependencies:
-    lodash._escapehtmlchar "~2.3.0"
-    lodash._reunescapedhtml "~2.3.0"
-    lodash.keys "~2.3.0"
-
-lodash.foreach@~2.3.x:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.foreach/-/lodash.foreach-2.3.0.tgz"
-  integrity sha1-CDQEyR6EbudyRf3512UZxosq8Wg=
-  dependencies:
-    lodash._basecreatecallback "~2.3.0"
-    lodash.forown "~2.3.0"
-
-lodash.forown@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.forown/-/lodash.forown-2.3.0.tgz"
-  integrity sha1-JPtKr4ANRfwtxgv+w84EyDajrX8=
-  dependencies:
-    lodash._basecreatecallback "~2.3.0"
-    lodash._objecttypes "~2.3.0"
-    lodash.keys "~2.3.0"
-
-lodash.identity@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.identity/-/lodash.identity-2.3.0.tgz"
-  integrity sha1-awGiEMlIU1XCqRO0i2cRIZoXPe0=
-
-lodash.isfunction@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.isfunction/-/lodash.isfunction-2.3.0.tgz"
-  integrity sha1-aylz5HpkfPEucNZ2rqE2Q3BuUmc=
-
-lodash.isobject@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.isobject/-/lodash.isobject-2.3.0.tgz"
-  integrity sha1-LhbT/Fg9qYMZaJU/LY5tc0NPZ5k=
-  dependencies:
-    lodash._objecttypes "~2.3.0"
-
-lodash.keys@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.keys/-/lodash.keys-2.3.0.tgz"
-  integrity sha1-s1D0+Syqn0WkouzwGEVM8vKK4lM=
-  dependencies:
-    lodash._renative "~2.3.0"
-    lodash._shimkeys "~2.3.0"
-    lodash.isobject "~2.3.0"
-
-lodash.noop@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.noop/-/lodash.noop-2.3.0.tgz"
-  integrity sha1-MFnWKNUbv5N80qC2/Dp/ISpmnCw=
-
-lodash.support@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.support/-/lodash.support-2.3.0.tgz"
-  integrity sha1-fq8DivTw1qq3drRKptz8gDNMm/0=
-  dependencies:
-    lodash._renative "~2.3.0"
-
-lodash.template@~2.3.x:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.template/-/lodash.template-2.3.0.tgz"
-  integrity sha1-Tj4pxDO0z+pnXsg15vEjkcYf0is=
-  dependencies:
-    lodash._escapestringchar "~2.3.0"
-    lodash._reinterpolate "~2.3.0"
-    lodash.defaults "~2.3.0"
-    lodash.escape "~2.3.0"
-    lodash.keys "~2.3.0"
-    lodash.templatesettings "~2.3.0"
-    lodash.values "~2.3.0"
-
-lodash.templatesettings@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.templatesettings/-/lodash.templatesettings-2.3.0.tgz"
-  integrity sha1-MD0TLDQnEAQNWhjvqi1XL9A/jNw=
-  dependencies:
-    lodash._reinterpolate "~2.3.0"
-    lodash.escape "~2.3.0"
-
-lodash.values@~2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/lodash.values/-/lodash.values-2.3.0.tgz"
-  integrity sha1-ypb75gogsLDsK6K6X8anZb0Uo7o=
-  dependencies:
-    lodash.keys "~2.3.0"
 
 lodash@^4.17.4, lodash@^4.3.0:
   version "4.17.4"
@@ -1333,23 +1107,6 @@ source-map-url@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmjs.org/source-map-url/-/source-map-url-0.3.0.tgz"
   integrity sha1-fsrxO1e80J2opAxdJp2zN5nUqvk=
-
-source-map@~0.1.x:
-  version "0.1.43"
-  resolved "https://registry.npmjs.org/source-map/-/source-map-0.1.43.tgz"
-  integrity sha1-wkvBRspRfBRx9drL4lcbK3+eM0Y=
-  dependencies:
-    amdefine ">=0.0.4"
-
-sourcemap-validator@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/sourcemap-validator/-/sourcemap-validator-1.1.0.tgz"
-  integrity sha512-Hmdu39KL+EoAAZ69OTk7RXXJdPRRizJvOZOWhCW9jLGfEQflCNPTlSoCXFPdKWFwwf0uzLcGR/fc7EP/PT8vRQ==
-  dependencies:
-    jsesc "~0.3.x"
-    lodash.foreach "~2.3.x"
-    lodash.template "~2.3.x"
-    source-map "~0.1.x"
 
 sprintf-js@~1.0.2:
   version "1.0.3"
